@@ -56,9 +56,12 @@
                         <h2 class="text-xl font-bold text-gray-900"><span id="quiz-header-question"></span> <span id="question-number"></span> <span id="quiz-header-of"></span> 60</h2>
                         <p id="quiz-header-select" class="text-sm font-semibold text-blue-600"></p>
                     </div>
-                    <div class="text-right">
-                        <div id="timer" class="text-2xl font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">120:00</div>
-                        <p id="quiz-header-time" class="text-xs text-gray-500"></p>
+                    <div class="flex items-center space-x-4">
+                        <button id="restart-during-quiz-btn" class="bg-red-100 text-red-700 hover:bg-red-200 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"></button>
+                        <div class="text-right">
+                            <div id="timer" class="text-2xl font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">120:00</div>
+                            <p id="quiz-header-time" class="text-xs text-gray-500"></p>
+                        </div>
                     </div>
                 </div>
 
@@ -112,7 +115,7 @@
                 prevBtn: "Anterior",
                 nextBtn: "Próxima",
                 finishBtn: "Finalizar",
-                finishConfirm: "Você tem certeza que deseja finalizar o simulado?",
+                restartDuringQuizBtn: "Reiniciar",
                 passTitle: "Parabéns, você passou!",
                 failTitle: "Não foi desta vez, continue estudando!",
                 resultSummary: (correct, total, score) => `Você acertou ${correct} de ${total} questões. (${score.toFixed(1)}%)`,
@@ -135,7 +138,7 @@
                 prevBtn: "Previous",
                 nextBtn: "Next",
                 finishBtn: "Finish",
-                finishConfirm: "Are you sure you want to finish the quiz?",
+                restartDuringQuizBtn: "Restart",
                 passTitle: "Congratulations, you passed!",
                 failTitle: "Not this time, keep studying!",
                 resultSummary: (correct, total, score) => `You answered ${correct} out of ${total} questions correctly. (${score.toFixed(1)}%)`,
@@ -2176,6 +2179,7 @@
         const langPtBtn = document.getElementById('lang-pt');
         const langEnBtn = document.getElementById('lang-en');
         const quizHeaderSelectEl = document.getElementById('quiz-header-select');
+        const restartDuringQuizBtn = document.getElementById('restart-during-quiz-btn');
 
         let quizQuestions = [];
         let userAnswers = [];
@@ -2200,6 +2204,7 @@
             prevBtn.textContent = uiText[lang].prevBtn;
             nextBtn.textContent = uiText[lang].nextBtn;
             finishBtn.textContent = uiText[lang].finishBtn;
+            restartDuringQuizBtn.textContent = uiText[lang].restartDuringQuizBtn;
             
             reviewBtn.textContent = uiText[lang].reviewBtn;
             restartBtn.textContent = uiText[lang].restartBtn;
@@ -2233,6 +2238,8 @@
             quizScreen.classList.remove('hidden');
 
             let timeLeft = 120 * 60; // 120 minutos em segundos
+            timerEl.textContent = "120:00";
+            if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft--;
                 const minutes = Math.floor(timeLeft / 60);
@@ -2382,6 +2389,15 @@
             clearInterval(timerInterval);
             calculateAndShowResults();
         }
+        
+        function restartQuiz() {
+             clearInterval(timerInterval);
+             quizScreen.classList.add('hidden');
+             resultsScreen.classList.add('hidden');
+             reviewContainer.classList.add('hidden');
+             startScreen.classList.remove('hidden');
+             setLanguage(currentLanguage);
+        }
 
         function calculateAndShowResults() {
             let correctCount = 0;
@@ -2461,10 +2477,11 @@
         langEnBtn.addEventListener('click', () => setLanguage('en'));
         startBtn.addEventListener('click', startQuiz);
         restartBtn.addEventListener('click', startQuiz);
+        restartDuringQuizBtn.addEventListener('click', restartQuiz);
         
         prevBtn.addEventListener('click', () => changeQuestion(-1));
         nextBtn.addEventListener('click', () => changeQuestion(1));
-        finishBtn.addEventListener('click', finishQuiz); // REMOVED confirm() call
+        finishBtn.addEventListener('click', finishQuiz);
         
         reviewBtn.addEventListener('click', () => {
             const lang = currentLanguage;
