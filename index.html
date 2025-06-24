@@ -9,91 +9,118 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background: #0F172A; /* bg-slate-900 */
         }
+
+        /* Estilo do container principal */
+        .main-container {
+            background-color: rgba(15, 23, 42, 0.8); /* slate-900 com transparência */
+            border: 1px solid rgba(56, 189, 248, 0.2); /* sky-400 com opacidade */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.1);
+        }
+
+        /* Efeito de brilho para botões */
+        .btn-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0);
+        }
+        .btn-glow:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Estilo de seleção de opção */
         .quiz-option.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+            border-color: #0EA5E9; /* sky-500 */
+            background-color: rgba(14, 165, 233, 0.1);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
         }
         .quiz-option.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.5;
         }
-        .lang-btn.active {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
+
+        /* Estilo da barra de progresso */
+        .score-bar-gradient {
+            background: linear-gradient(90deg, #0EA5E9, #22D3EE);
         }
-        button:disabled {
-            cursor: not-allowed;
+        
+        .result-icon {
+            filter: drop-shadow(0 0 8px);
         }
+
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+<body class="text-slate-300 flex items-center justify-center min-h-screen p-4">
     <div id="app-container" class="w-full max-w-4xl mx-auto">
 
         <!-- Tela Inicial -->
-        <div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg text-center">
+        <div id="start-screen" class="main-container p-8 rounded-2xl text-center">
             <div class="flex justify-center mb-6">
-                <button id="lang-pt" class="lang-btn active font-semibold py-2 px-4 border rounded-l-lg">Português</button>
-                <button id="lang-en" class="lang-btn font-semibold py-2 px-4 border rounded-r-lg">English</button>
+                <button id="lang-pt" class="lang-btn active font-semibold py-2 px-4 bg-transparent border border-slate-600 rounded-l-lg transition-colors">Português</button>
+                <button id="lang-en" class="lang-btn font-semibold py-2 px-4 bg-transparent border border-slate-600 rounded-r-lg transition-colors">English</button>
             </div>
-            <h1 id="main-title" class="text-3xl font-bold text-gray-900 mb-2">Simulado para Certificação SAP Generative AI Developer</h1>
-            <p id="main-subtitle" class="text-lg text-gray-600 mb-4">C_AIG_2412 - SAP Certified Associate</p>
-            <p id="main-desc" class="text-gray-500 mb-6 max-w-2xl mx-auto">
+            <h1 id="main-title" class="text-3xl font-bold text-slate-100 mb-2">Simulado para Certificação SAP Generative AI Developer</h1>
+            <p id="main-subtitle" class="text-lg text-slate-400 mb-4">C_AIG_2412 - SAP Certified Associate</p>
+            <p id="main-desc" class="text-slate-400 mb-8 max-w-2xl mx-auto">
                 Prepare-se para o exame com este simulado. Você terá <strong>120 minutos</strong> para responder a <strong>60 questões</strong> de múltipla escolha. Algumas perguntas podem ter mais de uma resposta correta. A pontuação para aprovação é de 65%.
             </p>
-            <button id="start-quiz-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+            <button id="start-quiz-btn" class="bg-sky-500 hover:bg-sky-400 btn-glow text-white font-bold py-3 px-8 rounded-lg text-lg">
                 Iniciar Simulado
             </button>
         </div>
 
         <!-- Tela do Quiz -->
         <div id="quiz-screen" class="hidden">
-            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+            <div class="main-container p-6 md:p-8 rounded-2xl">
                 <!-- Cabeçalho do Quiz -->
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900"><span id="quiz-header-question"></span> <span id="question-number"></span> <span id="quiz-header-of"></span> 60</h2>
-                        <p id="quiz-header-select" class="text-sm font-semibold text-blue-600"></p>
+                        <h2 class="text-xl font-bold text-slate-100"><span id="quiz-header-question"></span> <span id="question-number"></span> <span id="quiz-header-of"></span> 60</h2>
+                        <p id="quiz-header-select" class="text-sm font-semibold text-sky-400"></p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button id="restart-during-quiz-btn" class="bg-red-100 text-red-700 hover:bg-red-200 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"></button>
+                        <button id="restart-during-quiz-btn" class="bg-slate-700 text-slate-300 hover:bg-slate-600 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"></button>
                         <div class="text-right">
-                            <div id="timer" class="text-2xl font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">120:00</div>
-                            <p id="quiz-header-time" class="text-xs text-gray-500"></p>
+                            <div id="timer" class="text-2xl font-bold text-sky-400">120:00</div>
+                            <p id="quiz-header-time" class="text-xs text-slate-500"></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pergunta e Opções -->
                 <div id="question-container">
-                    <p id="question-text" class="text-lg font-semibold text-gray-800 mb-6"></p>
+                    <p id="question-text" class="text-lg font-semibold text-slate-200 mb-6"></p>
                     <div id="options-container" class="space-y-4">
                         <!-- Opções de resposta serão injetadas aqui -->
                     </div>
                 </div>
 
                 <!-- Navegação -->
-                <div class="mt-8 pt-6 border-t flex justify-between items-center">
-                    <button id="prev-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg transition-colors"></button>
-                    <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"></button>
-                    <button id="finish-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden"></button>
+                <div class="mt-8 pt-6 border-t border-slate-700 flex justify-between items-center">
+                    <button id="prev-btn" class="bg-slate-700 hover:bg-slate-600 btn-glow text-slate-200 font-bold py-2 px-6 rounded-lg"></button>
+                    <button id="next-btn" class="bg-sky-500 hover:bg-sky-400 btn-glow text-white font-bold py-2 px-6 rounded-lg"></button>
+                    <button id="finish-btn" class="bg-emerald-500 hover:bg-emerald-400 btn-glow text-white font-bold py-2 px-6 rounded-lg hidden"></button>
                 </div>
             </div>
         </div>
 
         <!-- Tela de Resultados -->
         <div id="results-screen" class="hidden">
-             <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+             <div class="main-container p-8 rounded-2xl text-center">
                 <h2 class="text-3xl font-bold mb-4" id="result-title"></h2>
-                <p class="text-xl text-gray-600 mb-6" id="result-summary"></p>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-6">
-                    <div id="score-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%"></div>
+                <p class="text-xl text-slate-300 mb-6" id="result-summary"></p>
+                <div class="w-full bg-slate-700 rounded-full h-4 mb-6">
+                    <div id="score-bar" class="score-bar-gradient h-4 rounded-full" style="width: 0%"></div>
                 </div>
-                <button id="review-answers-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md mb-4">
-                </button>
-                 <button id="restart-quiz-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
-                </button>
+                <div class="flex justify-center space-x-4">
+                    <button id="review-answers-btn" class="bg-sky-500 hover:bg-sky-400 btn-glow text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    </button>
+                     <button id="restart-quiz-btn" class="bg-slate-700 hover:bg-slate-600 btn-glow text-slate-200 font-bold py-3 px-8 rounded-lg text-lg">
+                    </button>
+                </div>
             </div>
             <div id="review-container" class="hidden mt-8 space-y-4">
                 <!-- Revisão das respostas será injetada aqui -->
@@ -2266,13 +2293,13 @@
 
                 const optionElement = document.createElement('div');
                 optionElement.innerHTML = `
-                    <label for="${optionId}" class="quiz-option block w-full p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label for="${optionId}" class="quiz-option block w-full p-4 border-2 border-slate-700 rounded-lg cursor-pointer hover:border-sky-500 transition-all duration-300">
                         <input type="checkbox" id="${optionId}" name="option" class="hidden" ${isChecked ? 'checked' : ''}>
                         <div class="flex items-center">
-                            <span class="flex-shrink-0 w-6 h-6 border-2 border-gray-400 rounded-md mr-4 flex items-center justify-center transition-colors">
+                            <span class="flex-shrink-0 w-6 h-6 border-2 border-slate-500 rounded-md mr-4 flex items-center justify-center transition-all duration-300">
                                 <svg class="w-4 h-4 text-white fill-current hidden" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                             </span>
-                            <span class="text-base text-gray-700">${option.text}</span>
+                            <span class="text-base text-slate-300">${option.text}</span>
                         </div>
                     </label>
                 `;
@@ -2311,14 +2338,15 @@
             const allLabels = optionsContainer.querySelectorAll('label');
             allLabels.forEach(label => {
                 const checkbox = label.querySelector('input');
-                 if (checkbox.checked) {
+                const checkmarkContainer = label.querySelector('.border-slate-500');
+                if (checkbox.checked) {
                     label.classList.add('selected');
-                    label.querySelector('.border-gray-400').classList.add('bg-blue-600', 'border-blue-600');
-                    label.querySelector('svg').classList.remove('hidden');
+                    checkmarkContainer.classList.add('bg-sky-500', 'border-sky-500');
+                    checkmarkContainer.querySelector('svg').classList.remove('hidden');
                 } else {
                     label.classList.remove('selected');
-                    label.querySelector('.border-gray-400').classList.remove('bg-blue-600', 'border-blue-600');
-                    label.querySelector('svg').classList.add('hidden');
+                    checkmarkContainer.classList.remove('bg-sky-500', 'border-sky-500');
+                    checkmarkContainer.querySelector('svg').classList.add('hidden');
                 }
             });
         }
@@ -2348,7 +2376,7 @@
             const checkboxes = optionsContainer.querySelectorAll('input[type="checkbox"]:checked');
             checkboxes.forEach((checkbox) => {
                 const label = checkbox.closest('label');
-                const text = label.querySelector('span.text-gray-700').textContent;
+                const text = label.querySelector('span.text-slate-300').textContent;
                 selectedOptions.push(text);
             });
             userAnswers[currentQuestionIndex] = selectedOptions.length > 0 ? selectedOptions : null;
@@ -2357,7 +2385,6 @@
         function updateNavButtons() {
             // Previous button logic
             prevBtn.disabled = currentQuestionIndex === 0;
-            prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
             
             // Next/Finish button logic
             const questionData = quizQuestions[currentQuestionIndex][currentLanguage];
@@ -2369,12 +2396,10 @@
                 nextBtn.classList.add('hidden');
                 finishBtn.classList.remove('hidden');
                 finishBtn.disabled = !canProceed;
-                finishBtn.classList.toggle('opacity-50', !canProceed);
             } else {
                 nextBtn.classList.remove('hidden');
                 finishBtn.classList.add('hidden');
                 nextBtn.disabled = !canProceed;
-                nextBtn.classList.toggle('opacity-50', !canProceed);
             }
         }
 
@@ -2419,11 +2444,16 @@
             resultsScreen.classList.remove('hidden');
             
             const lang = currentLanguage;
-            resultTitleEl.textContent = passed ? uiText[lang].passTitle : uiText[lang].failTitle;
-            resultTitleEl.className = `text-3xl font-bold mb-4 ${passed ? 'text-green-600' : 'text-red-600'}`;
+            if(passed) {
+                resultTitleEl.textContent = uiText[lang].passTitle;
+                resultTitleEl.className = 'text-3xl font-bold mb-4 text-emerald-400 result-icon';
+            } else {
+                resultTitleEl.textContent = uiText[lang].failTitle;
+                resultTitleEl.className = 'text-3xl font-bold mb-4 text-red-500 result-icon';
+            }
+            
             resultSummaryEl.textContent = uiText[lang].resultSummary(correctCount, quizQuestions.length, score);
             scoreBar.style.width = `${score}%`;
-            scoreBar.className = `h-4 rounded-full ${passed ? 'bg-green-500' : 'bg-red-500'}`;
             
             prepareReview();
         }
@@ -2433,7 +2463,7 @@
             const lang = currentLanguage;
             quizQuestions.forEach((question, index) => {
                 const questionDiv = document.createElement('div');
-                questionDiv.className = 'bg-white p-6 rounded-lg shadow-sm border';
+                questionDiv.className = 'main-container p-6 rounded-lg';
                 const questionData = question[lang];
 
                 const correctOptions = questionData.options.filter(o => o.correct).map(o => o.text).sort();
@@ -2444,15 +2474,15 @@
                 questionData.options.forEach(option => {
                     const isCorrect = option.correct;
                     const isSelected = userSelection.includes(option.text);
-                    let optionClass = 'text-gray-700';
+                    let optionClass = 'text-slate-400';
                     let icon = '';
 
                     if (isCorrect) {
-                        optionClass = 'text-green-700 font-semibold';
+                        optionClass = 'text-emerald-400 font-semibold';
                         icon = '<span>✔️</span>';
                     }
                     if (isSelected && !isCorrect) {
-                        optionClass = 'text-red-700';
+                        optionClass = 'text-red-500';
                         icon = '<span>❌</span>';
                     }
                     
@@ -2460,11 +2490,11 @@
                 });
                 optionsHtml += '</div>';
 
-                const explanationHtml = `<div class="mt-4 pt-4 border-t border-gray-200"><h4 class="font-semibold text-sm text-gray-800">${uiText[lang].explanation}</h4><p class="text-sm text-gray-600">${questionData.explanation}</p></div>`;
+                const explanationHtml = `<div class="mt-4 pt-4 border-t border-slate-700"><h4 class="font-semibold text-sm text-slate-100">${uiText[lang].explanation}</h4><p class="text-sm text-slate-400">${questionData.explanation}</p></div>`;
 
                 questionDiv.innerHTML = `
-                    <p class="font-bold text-gray-800">${index + 1}. ${questionData.question}</p>
-                    <p class="text-sm font-semibold ${isQuestionCorrect ? 'text-green-600' : 'text-red-600'}">${isQuestionCorrect ? uiText[lang].reviewCorrect : uiText[lang].reviewIncorrect}</p>
+                    <p class="font-bold text-slate-200">${index + 1}. ${questionData.question}</p>
+                    <p class="text-sm font-semibold ${isQuestionCorrect ? 'text-emerald-400' : 'text-red-500'}">${isQuestionCorrect ? uiText[lang].reviewCorrect : uiText[lang].reviewIncorrect}</p>
                     ${optionsHtml}
                     ${explanationHtml}
                 `;
