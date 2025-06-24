@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado C_AIG_2412 - SAP Generative AI Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .quiz-option.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .quiz-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .lang-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        button:disabled {
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+    <div id="app-container" class="w-full max-w-4xl mx-auto">
+
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg text-center">
+            <div class="flex justify-center mb-6">
+                <button id="lang-pt" class="lang-btn active font-semibold py-2 px-4 border rounded-l-lg">Português</button>
+                <button id="lang-en" class="lang-btn font-semibold py-2 px-4 border rounded-r-lg">English</button>
+            </div>
+            <h1 id="main-title" class="text-3xl font-bold text-gray-900 mb-2">Simulado para Certificação SAP Generative AI Developer</h1>
+            <p id="main-subtitle" class="text-lg text-gray-600 mb-4">C_AIG_2412 - SAP Certified Associate</p>
+            <p id="main-desc" class="text-gray-500 mb-6 max-w-2xl mx-auto">
+                Prepare-se para o exame com este simulado. Você terá <strong>120 minutos</strong> para responder a <strong>60 questões</strong> de múltipla escolha. Algumas perguntas podem ter mais de uma resposta correta. A pontuação para aprovação é de 65%.
+            </p>
+            <button id="start-quiz-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                Iniciar Simulado
+            </button>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <!-- Cabeçalho do Quiz -->
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900"><span id="quiz-header-question"></span> <span id="question-number"></span> <span id="quiz-header-of"></span> 60</h2>
+                        <p id="quiz-header-select" class="text-sm font-semibold text-blue-600"></p>
+                    </div>
+                    <div class="text-right">
+                        <div id="timer" class="text-2xl font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">120:00</div>
+                        <p id="quiz-header-time" class="text-xs text-gray-500"></p>
+                    </div>
+                </div>
+
+                <!-- Pergunta e Opções -->
+                <div id="question-container">
+                    <p id="question-text" class="text-lg font-semibold text-gray-800 mb-6"></p>
+                    <div id="options-container" class="space-y-4">
+                        <!-- Opções de resposta serão injetadas aqui -->
+                    </div>
+                </div>
+
+                <!-- Navegação -->
+                <div class="mt-8 pt-6 border-t flex justify-between items-center">
+                    <button id="prev-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg transition-colors"></button>
+                    <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"></button>
+                    <button id="finish-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div id="results-screen" class="hidden">
+             <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                <h2 class="text-3xl font-bold mb-4" id="result-title"></h2>
+                <p class="text-xl text-gray-600 mb-6" id="result-summary"></p>
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-6">
+                    <div id="score-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%"></div>
+                </div>
+                <button id="review-answers-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md mb-4">
+                </button>
+                 <button id="restart-quiz-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                </button>
+            </div>
+            <div id="review-container" class="hidden mt-8 space-y-4">
+                <!-- Revisão das respostas será injetada aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uiText = {
+            pt: {
+                mainTitle: "Simulado para Certificação SAP Generative AI Developer",
+                mainSubtitle: "C_AIG_2412 - SAP Certified Associate",
+                mainDesc: "Prepare-se para o exame com este simulado. Você terá <strong>120 minutos</strong> para responder a <strong>60 questões</strong> de múltipla escolha. Algumas perguntas podem ter mais de uma resposta correta. A pontuação para aprovação é de 65%.",
+                startBtn: "Iniciar Simulado",
+                quizHeaderQuestion: "Questão",
+                quizHeaderOf: "de",
+                quizHeaderSelect: (count) => `Selecione ${count} ${count > 1 ? 'respostas corretas' : 'resposta correta'}.`,
+                quizHeaderTime: "Tempo Restante",
+                prevBtn: "Anterior",
+                nextBtn: "Próxima",
+                finishBtn: "Finalizar",
+                finishConfirm: "Você tem certeza que deseja finalizar o simulado?",
+                passTitle: "Parabéns, você passou!",
+                failTitle: "Não foi desta vez, continue estudando!",
+                resultSummary: (correct, total, score) => `Você acertou ${correct} de ${total} questões. (${score.toFixed(1)}%)`,
+                reviewBtn: "Revisar Respostas",
+                hideReviewBtn: "Ocultar Respostas",
+                restartBtn: "Tentar Novamente",
+                reviewCorrect: "Sua resposta está correta.",
+                reviewIncorrect: "Sua resposta está incorreta.",
+                explanation: "Explicação:"
+            },
+            en: {
+                mainTitle: "SAP Generative AI Developer Certification Simulator",
+                mainSubtitle: "C_AIG_2412 - SAP Certified Associate",
+                mainDesc: "Prepare for the exam with this simulator. You will have <strong>120 minutes</strong> to answer <strong>60 multiple-choice questions</strong>. Some questions may have more than one correct answer. The passing score is 65%.",
+                startBtn: "Start Quiz",
+                quizHeaderQuestion: "Question",
+                quizHeaderOf: "of",
+                quizHeaderSelect: (count) => `Select ${count} correct ${count > 1 ? 'answers' : 'answer'}.`,
+                quizHeaderTime: "Time Remaining",
+                prevBtn: "Previous",
+                nextBtn: "Next",
+                finishBtn: "Finish",
+                finishConfirm: "Are you sure you want to finish the quiz?",
+                passTitle: "Congratulations, you passed!",
+                failTitle: "Not this time, keep studying!",
+                resultSummary: (correct, total, score) => `You answered ${correct} out of ${total} questions correctly. (${score.toFixed(1)}%)`,
+                reviewBtn: "Review Answers",
+                hideReviewBtn: "Hide Answers",
+                restartBtn: "Try Again",
+                reviewCorrect: "Your answer is correct.",
+                reviewIncorrect: "Your answer is incorrect.",
+                explanation: "Explanation:"
+            }
+        };
+
+        const allQuestions = [
+            // 1
+            {
+                pt: {
+                    question: "Qual é o principal objetivo do SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Executar modelos de IA de forma produtiva e escalável na SAP BTP.", correct: true },
+                        { text: "Criar dashboards de análise de dados.", correct: false },
+                        { text: "Gerenciar usuários e permissões no sistema SAP.", correct: false },
+                        { text: "Desenvolver interfaces de usuário com SAP Fiori.", correct: false }
+                    ],
+                    explanation: "O SAP AI Core é o serviço na SAP Business Technology Platform (BTP) projetado para gerenciar e executar modelos de inteligência artificial de forma escalável, conectando-os aos processos de negócio da SAP."
+                },
+                en: {
+                    question: "What is the main purpose of SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To run AI models productively and scalably on SAP BTP.", correct: true },
+                        { text: "To create data analysis dashboards.", correct: false },
+                        { text: "To manage users and permissions in the SAP system.", correct: false },
+                        { text: "To develop user interfaces with SAP Fiori.", correct: false }
+                    ],
+                    explanation: "SAP AI Core is the service on the SAP Business Technology Platform (BTP) designed to manage and run artificial intelligence models in a scalable way, connecting them to SAP's business processes."
+                }
+            },
+            // 2
+            {
+                pt: {
+                    question: "Quais dos seguintes são componentes chave do SAP AI Core? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "AI API", correct: true },
+                        { text: "AI Launchpad", correct: true },
+                        { text: "SAP Analytics Cloud", correct: false },
+                        { text: "SAP HANA Cloud", correct: false }
+                    ],
+                    explanation: "A AI API é usada para interagir programaticamente com o serviço (treinamento, deploy, inferência), enquanto o AI Launchpad oferece uma interface de usuário para gerenciar e monitorar os cenários de IA."
+                },
+                en: {
+                    question: "Which of the following are key components of SAP AI Core? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "AI API", correct: true },
+                        { text: "AI Launchpad", correct: true },
+                        { text: "SAP Analytics Cloud", correct: false },
+                        { text: "SAP HANA Cloud", correct: false }
+                    ],
+                    explanation: "The AI API is used to programmatically interact with the service (training, deployment, inference), while the AI Launchpad provides a user interface to manage and monitor AI scenarios."
+                }
+            },
+            // 3
+            {
+                pt: {
+                    question: "O que é um 'cenário de IA' (AI Scenario) no contexto do SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Um contêiner que agrupa todos os artefatos necessários para um caso de uso de IA.", correct: true },
+                        { text: "Um modelo de machine learning pré-treinado.", correct: false },
+                        { text: "Um relatório de performance de um modelo.", correct: false },
+                        { text: "Uma conexão com um sistema S/4HANA.", correct: false }
+                    ],
+                    explanation: "Um cenário de IA no SAP AI Core organiza todos os artefatos relacionados a um caso de uso específico, como o código de treinamento, o modelo treinado, os workflows de execução e as configurações de deploy."
+                },
+                en: {
+                    question: "What is an 'AI Scenario' in the context of SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A container that groups all the necessary artifacts for an AI use case.", correct: true },
+                        { text: "A pre-trained machine learning model.", correct: false },
+                        { text: "A performance report of a model.", correct: false },
+                        { text: "A connection to an S/4HANA system.", correct: false }
+                    ],
+                    explanation: "An AI scenario in SAP AI Core organizes all artifacts related to a specific use case, such as the training code, the trained model, execution workflows, and deployment configurations."
+                }
+            },
+            // 4
+             {
+                pt: {
+                    question: "Como o SAP AI Core se conecta a um repositório de código como o GitHub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Através da criação de uma 'Aplicação' que aponta para a URL do repositório Git.", correct: true },
+                        { text: "Manualmente, fazendo upload de arquivos zip.", correct: false },
+                        { text: "Ele não se conecta a repositórios externos.", correct: false },
+                        { text: "Através de uma conexão RFC.", correct: false }
+                    ],
+                    explanation: "No SAP AI Core, você define uma 'Aplicação' que contém a URL de um repositório Git e as credenciais (se necessário), permitindo que o serviço acesse o código-fonte para treinamento e inferência."
+                },
+                en: {
+                    question: "How does SAP AI Core connect to a code repository like GitHub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "By creating an 'Application' that points to the Git repository URL.", correct: true },
+                        { text: "Manually, by uploading zip files.", correct: false },
+                        { text: "It does not connect to external repositories.", correct: false },
+                        { text: "Through an RFC connection.", correct: false }
+                    ],
+                    explanation: "In SAP AI Core, you define an 'Application' that contains the URL of a Git repository and credentials (if necessary), allowing the service to access the source code for training and inference."
+                }
+            },
+            // 5
+            {
+                pt: {
+                    question: "Para que serve o 'Resource Group' no SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Para isolar recursos e gerenciar o acesso de diferentes equipes ou projetos.", correct: true },
+                        { text: "Para agrupar modelos de IA por tipo (e.g., classificação, regressão).", correct: false },
+                        { text: "Para definir a região da nuvem onde os modelos serão executados.", correct: false },
+                        { text: "Para conectar o AI Core ao Generative AI Hub.", correct: false }
+                    ],
+                    explanation: "Resource Groups são usados para governança e isolamento. Eles funcionam como namespaces que permitem separar os artefatos, execuções e acessos de diferentes casos de uso ou times dentro da mesma instância do SAP AI Core."
+                },
+                en: {
+                    question: "What is the purpose of a 'Resource Group' in SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To isolate resources and manage access for different teams or projects.", correct: true },
+                        { text: "To group AI models by type (e.g., classification, regression).", correct: false },
+                        { text: "To define the cloud region where models will be executed.", correct: false },
+                        { text: "To connect AI Core to the Generative AI Hub.", correct: false }
+                    ],
+                    explanation: "Resource Groups are used for governance and isolation. They act as namespaces that allow separating artifacts, executions, and access for different use cases or teams within the same SAP AI Core instance."
+                }
+            },
+            // 6
+            {
+                pt: {
+                    question: "Qual é a principal função do Generative AI Hub na SAP BTP?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fornecer um ponto de acesso centralizado e seguro a múltiplos LLMs de diferentes provedores.", correct: true },
+                        { text: "Treinar novos LLMs do zero para tarefas específicas da SAP.", correct: false },
+                        { text: "Gerenciar o ciclo de vida de datasets para treinamento.", correct: false },
+                        { text: "Substituir completamente o SAP AI Core.", correct: false }
+                    ],
+                    explanation: "O Generative AI Hub atua como um broker, oferecendo uma camada de abstração que permite aos desenvolvedores acessar e experimentar diferentes LLMs (como GPT-4, Cohere, etc.) através de uma única API, garantindo governança e o envio de dados relevantes para o contexto de negócio."
+                },
+                en: {
+                    question: "What is the main function of the Generative AI Hub on SAP BTP?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To provide a centralized and secure access point to multiple LLMs from different providers.", correct: true },
+                        { text: "To train new LLMs from scratch for SAP-specific tasks.", correct: false },
+                        { text: "To manage the lifecycle of datasets for training.", correct: false },
+                        { text: "To completely replace SAP AI Core.", correct: false }
+                    ],
+                    explanation: "The Generative AI Hub acts as a broker, offering an abstraction layer that allows developers to access and experiment with different LLMs (like GPT-4, Cohere, etc.) through a single API, ensuring governance and the transmission of relevant business context data."
+                }
+            },
+            // 7
+            {
+                pt: {
+                    question: "Quais benefícios o Generative AI Hub oferece? (Selecione três)",
+                    correctCount: 3,
+                    options: [
+                        { text: "Gerenciamento de prompts para diferentes casos de uso.", correct: true },
+                        { text: "Abstração de múltiplos LLMs, facilitando a troca entre eles.", correct: true },
+                        { text: "Ferramentas para garantir que apenas dados de negócio relevantes e permitidos sejam enviados aos LLMs.", correct: true },
+                        { text: "Capacidade de executar LLMs em hardware on-premise.", correct: false }
+                    ],
+                    explanation: "O Hub simplifica o uso de IA Generativa ao centralizar o acesso a LLMs, gerenciar prompts de forma eficiente e fornecer mecanismos de governança e grounding para garantir que as respostas sejam contextuais e seguras."
+                },
+                en: {
+                    question: "What benefits does the Generative AI Hub offer? (Select three)",
+                    correctCount: 3,
+                    options: [
+                        { text: "Prompt management for different use cases.", correct: true },
+                        { text: "Abstraction of multiple LLMs, making it easy to switch between them.", correct: true },
+                        { text: "Tools to ensure only relevant and permitted business data is sent to LLMs.", correct: true },
+                        { text: "Ability to run LLMs on on-premise hardware.", correct: false }
+                    ],
+                    explanation: "The Hub simplifies the use of Generative AI by centralizing access to LLMs, efficiently managing prompts, and providing governance and grounding mechanisms to ensure responses are contextual and secure."
+                }
+            },
+            // 8
+            {
+                pt: {
+                    question: "Dentro do Generative AI Hub, qual ferramenta é usada para testar e experimentar diferentes LLMs e prompts?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Playground", correct: true },
+                        { text: "Model Manager", correct: false },
+                        { text: "Prompt Studio", correct: false },
+                        { text: "AI Core Link", correct: false }
+                    ],
+                    explanation: "O Playground é a interface interativa no Generative AI Hub onde desenvolvedores e engenheiros de prompt podem testar diferentes modelos, ajustar prompts e comparar os resultados para encontrar a melhor combinação para seu caso de uso."
+                },
+                en: {
+                    question: "Within the Generative AI Hub, which tool is used to test and experiment with different LLMs and prompts?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Playground", correct: true },
+                        { text: "Model Manager", correct: false },
+                        { text: "Prompt Studio", correct: false },
+                        { text: "AI Core Link", correct: false }
+                    ],
+                    explanation: "The Playground is the interactive interface in the Generative AI Hub where developers and prompt engineers can test different models, adjust prompts, and compare results to find the best combination for their use case."
+                }
+            },
+            // 9
+            {
+                pt: {
+                    question: "O que é 'grounding' no contexto do Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "O processo de fornecer dados de negócio específicos e relevantes da SAP para um LLM.", correct: true },
+                        { text: "A etapa de deploy de um modelo em produção.", correct: false },
+                        { text: "A avaliação da toxicidade de um prompt.", correct: false },
+                        { text: "O ajuste fino (fine-tuning) de um modelo de base.", correct: false }
+                    ],
+                    explanation: "Grounding refere-se a ancorar as respostas do LLM em dados de negócio reais e atuais da empresa. O Hub facilita isso ao conectar os prompts a fontes de dados SAP, tornando as respostas mais precisas e contextuais, minimizando alucinações."
+                },
+                en: {
+                    question: "What is 'grounding' in the context of the Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "The process of providing specific and relevant SAP business data to an LLM.", correct: true },
+                        { text: "The deployment step of a model into production.", correct: false },
+                        { text: "The evaluation of a prompt's toxicity.", correct: false },
+                        { text: "The fine-tuning of a base model.", correct: false }
+                    ],
+                    explanation: "Grounding refers to anchoring the LLM's responses in real and current business data. The Hub facilitates this by connecting prompts to SAP data sources, making responses more accurate and contextual, thereby minimizing hallucinations."
+                }
+            },
+            // 10
+            {
+                pt: {
+                    question: "Qual das seguintes afirmações sobre o Generative AI Hub é VERDADEIRA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Ele é projetado para trabalhar em conjunto com o SAP AI Core para cenários complexos.", correct: true },
+                        { text: "Ele substitui a necessidade de engenheiros de prompt.", correct: false },
+                        { text: "Ele só oferece acesso a modelos de código aberto.", correct: false },
+                        { text: "Ele armazena todos os dados de prompts permanentemente nos servidores dos provedores de LLM.", correct: false }
+                    ],
+                    explanation: "O GenAI Hub e o AI Core são complementares. O Hub é ideal para acesso rápido e gerenciado a LLMs, enquanto o AI Core é usado para orquestrar cenários de IA mais complexos que podem, inclusive, chamar o Hub como parte de um workflow."
+                },
+                en: {
+                    question: "Which of the following statements about the Generative AI Hub is TRUE?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is designed to work in conjunction with SAP AI Core for complex scenarios.", correct: true },
+                        { text: "It replaces the need for prompt engineers.", correct: false },
+                        { text: "It only provides access to open-source models.", correct: false },
+                        { text: "It permanently stores all prompt data on the LLM providers' servers.", correct: false }
+                    ],
+                    explanation: "The GenAI Hub and AI Core are complementary. The Hub is ideal for quick and managed access to LLMs, while AI Core is used to orchestrate more complex AI scenarios that may even call the Hub as part of a workflow."
+                }
+            },
+            // 11
+            {
+                pt: {
+                    question: "O que é 'prompt engineering'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A arte e ciência de criar entradas (prompts) eficazes para guiar um LLM a gerar a saída desejada.", correct: true },
+                        { text: "O processo de treinar um modelo de linguagem do zero.", correct: false },
+                        { text: "A otimização da infraestrutura de hardware para executar LLMs.", correct: false },
+                        { text: "A codificação de um novo modelo de rede neural.", correct: false }
+                    ],
+                    explanation: "Prompt engineering é uma disciplina focada em projetar e refinar as instruções fornecidas a um modelo de IA generativa para obter respostas precisas, relevantes e no formato correto."
+                },
+                en: {
+                    question: "What is 'prompt engineering'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "The art and science of creating effective inputs (prompts) to guide an LLM to generate the desired output.", correct: true },
+                        { text: "The process of training a language model from scratch.", correct: false },
+                        { text: "The optimization of hardware infrastructure to run LLMs.", correct: false },
+                        { text: "The coding of a new neural network model.", correct: false }
+                    ],
+                    explanation: "Prompt engineering is a discipline focused on designing and refining the instructions given to a generative AI model to obtain accurate, relevant, and correctly formatted responses."
+                }
+            },
+            // 12
+            {
+                pt: {
+                    question: "Qual técnica de prompt engineering envolve fornecer exemplos de entrada e saída desejada no próprio prompt?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Few-shot prompting", correct: true },
+                        { text: "Zero-shot prompting", correct: false },
+                        { text: "Chain-of-thought prompting", correct: false },
+                        { text: "Temperature scaling", correct: false }
+                    ],
+                    explanation: "Few-shot prompting consiste em incluir alguns exemplos (shots) do par tarefa-resposta no prompt, o que ajuda o modelo a entender melhor o padrão e a tarefa solicitada sem a necessidade de re-treinamento."
+                },
+                en: {
+                    question: "Which prompt engineering technique involves providing examples of the desired input and output in the prompt itself?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Few-shot prompting", correct: true },
+                        { text: "Zero-shot prompting", correct: false },
+                        { text: "Chain-of-thought prompting", correct: false },
+                        { text: "Temperature scaling", correct: false }
+                    ],
+                    explanation: "Few-shot prompting consists of including a few examples (shots) of the task-response pair in the prompt, which helps the model better understand the pattern and the requested task without needing re-training."
+                }
+            },
+            // 13
+             {
+                pt: {
+                    question: "A técnica de 'Chain-of-Thought' (CoT) prompting é mais útil para qual tipo de tarefa?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Tarefas que requerem raciocínio passo a passo, como problemas matemáticos ou lógicos.", correct: true },
+                        { text: "Geração de texto criativo curto.", correct: false },
+                        { text: "Classificação de sentimento simples.", correct: false },
+                        { text: "Tradução de uma única palavra.", correct: false }
+                    ],
+                    explanation: "A técnica Chain-of-Thought (Cadeia de Pensamento) instrui o modelo a 'pensar em voz alta', detalhando os passos do seu raciocínio antes de dar a resposta final. Isso melhora significativamente a performance em tarefas complexas que exigem lógica sequencial."
+                },
+                en: {
+                    question: "The 'Chain-of-Thought' (CoT) prompting technique is most useful for which type of task?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Tasks that require step-by-step reasoning, such as mathematical or logical problems.", correct: true },
+                        { text: "Generating short creative text.", correct: false },
+                        { text: "Simple sentiment classification.", correct: false },
+                        { text: "Translating a single word.", correct: false }
+                    ],
+                    explanation: "The Chain-of-Thought technique instructs the model to 'think out loud,' detailing its reasoning steps before giving the final answer. This significantly improves performance on complex tasks that require sequential logic."
+                }
+            },
+            // 14
+            {
+                pt: {
+                    question: "O que o parâmetro 'temperature' controla em um LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "O nível de aleatoriedade ou 'criatividade' da resposta.", correct: true },
+                        { text: "A quantidade máxima de tokens na saída.", correct: false },
+                        { text: "A velocidade de processamento do prompt.", correct: false },
+                        { text: "O viés do modelo.", correct: false }
+                    ],
+                    explanation: "A temperatura é um hiperparâmetro que ajusta a distribuição de probabilidade da próxima palavra. Temperaturas mais baixas (e.g., 0.1) tornam as respostas mais determinísticas e focadas, enquanto temperaturas mais altas (e.g., 0.9) aumentam a diversidade e a criatividade, mas também o risco de respostas inesperadas."
+                },
+                en: {
+                    question: "What does the 'temperature' parameter control in an LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "The level of randomness or 'creativity' of the response.", correct: true },
+                        { text: "The maximum number of tokens in the output.", correct: false },
+                        { text: "The processing speed of the prompt.", correct: false },
+                        { text: "The bias of the model.", correct: false }
+                    ],
+                    explanation: "Temperature is a hyperparameter that adjusts the probability distribution of the next word. Lower temperatures (e.g., 0.1) make responses more deterministic and focused, while higher temperatures (e.g., 0.9) increase diversity and creativity, but also the risk of unexpected answers."
+                }
+            },
+            // 15
+            {
+                pt: {
+                    question: "Quais são os principais riscos associados ao uso de LLMs? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Geração de informações incorretas ou 'alucinações'.", correct: true },
+                        { text: "Vazamento de dados sensíveis enviados nos prompts.", correct: true },
+                        { text: "Consumo excessivo de memória RAM no computador do usuário.", correct: false },
+                        { text: "Incompatibilidade com navegadores web antigos.", correct: false }
+                    ],
+                    explanation: "Dois dos maiores desafios com LLMs são a tendência de gerar informações factualmente incorretas (alucinações) e os riscos de segurança e privacidade se dados confidenciais forem incluídos nos prompts enviados a APIs de terceiros."
+                },
+                en: {
+                    question: "What are the main risks associated with using LLMs? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Generation of incorrect information or 'hallucinations'.", correct: true },
+                        { text: "Leakage of sensitive data sent in prompts.", correct: true },
+                        { text: "Excessive RAM consumption on the user's computer.", correct: false },
+                        { text: "Incompatibility with old web browsers.", correct: false }
+                    ],
+                    explanation: "Two of the biggest challenges with LLMs are their tendency to generate factually incorrect information (hallucinations) and the security and privacy risks if confidential data is included in prompts sent to third-party APIs."
+                }
+            },
+            // 16
+             {
+                pt: {
+                    question: "O que é RAG (Retrieval-Augmented Generation)?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Uma técnica que combina um LLM com um sistema de busca de informações para 'aterrar' as respostas em dados factuais.", correct: true },
+                        { text: "Um método para comprimir o tamanho de um LLM.", correct: false },
+                        { text: "Um tipo de modelo de linguagem especializado em gerar código.", correct: false },
+                        { text: "Uma framework de avaliação de performance de prompts.", correct: false }
+                    ],
+                    explanation: "RAG aumenta a capacidade de um LLM ao primeiro buscar informações relevantes de uma base de conhecimento (como documentos internos ou a web) e depois usar essas informações como contexto para gerar uma resposta mais precisa e confiável."
+                },
+                en: {
+                    question: "What is RAG (Retrieval-Augmented Generation)?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A technique that combines an LLM with an information retrieval system to 'ground' responses in factual data.", correct: true },
+                        { text: "A method for compressing the size of an LLM.", correct: false },
+                        { text: "A type of language model specialized in code generation.", correct: false },
+                        { text: "A framework for evaluating prompt performance.", correct: false }
+                    ],
+                    explanation: "RAG enhances an LLM's capability by first retrieving relevant information from a knowledge base (like internal documents or the web) and then using that information as context to generate a more accurate and reliable answer."
+                }
+            },
+            // 17
+             {
+                pt: {
+                    question: "No prompt engineering, o que significa definir uma 'persona'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Instruir o modelo a agir como um especialista específico (ex: 'Aja como um consultor financeiro sênior').", correct: true },
+                        { text: "Criar uma conta de usuário para o LLM.", correct: false },
+                        { text: "Definir o formato de saída como JSON ou XML.", correct: false },
+                        { text: "Escolher o provedor do LLM (ex: OpenAI, Cohere).", correct: false }
+                    ],
+                    explanation: "Definir uma persona é uma técnica de prompt eficaz onde você instrui o modelo a adotar um papel ou personalidade específica. Isso helps a focar o estilo, o tom e o nível de detalhe da resposta de acordo com o desejado."
+                },
+                en: {
+                    question: "In prompt engineering, what does defining a 'persona' mean?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Instructing the model to act as a specific expert (e.g., 'Act as a senior financial consultant').", correct: true },
+                        { text: "Creating a user account for the LLM.", correct: false },
+                        { text: "Defining the output format as JSON or XML.", correct: false },
+                        { text: "Choosing the LLM provider (e.g., OpenAI, Cohere).", correct: false }
+                    ],
+                    explanation: "Defining a persona is an effective prompt technique where you instruct the model to adopt a specific role or personality. This helps to focus the style, tone, and level of detail of the response as desired."
+                }
+            },
+            // 18
+            {
+                pt: {
+                    question: "Qual é o nome do copiloto de IA generativa da SAP, integrado em todo o portfólio de nuvem da empresa?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Joule", correct: true },
+                        { text: "Copilot for SAP", correct: false },
+                        { text: "SAP Assistant", correct: false },
+                        { text: "BTP Genius", correct: false }
+                    ],
+                    explanation: "Joule é o copiloto de IA da SAP que entende a linguagem natural e o contexto de negócio do usuário, oferecendo assistência proativa e insights diretamente nas aplicações cloud da SAP, como S/4HANA Cloud e SuccessFactors."
+                },
+                en: {
+                    question: "What is the name of SAP's generative AI copilot, integrated across the company's cloud portfolio?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Joule", correct: true },
+                        { text: "Copilot for SAP", correct: false },
+                        { text: "SAP Assistant", correct: false },
+                        { text: "BTP Genius", correct: false }
+                    ],
+                    explanation: "Joule is SAP's AI copilot that understands natural language and the user's business context, offering proactive assistance and insights directly within SAP's cloud applications, such as S/4HANA Cloud and SuccessFactors."
+                }
+            },
+            // 19
+            {
+                pt: {
+                    question: "Qual é a estratégia da SAP em relação à IA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Integrar IA de forma Relevante, Confiável e Responsável diretamente nos processos de negócio.", correct: true },
+                        { text: "Competir diretamente com a OpenAI na criação do maior modelo de linguagem fundamental.", correct: false },
+                        { text: "Focar exclusivamente em IA para análise de dados, descontinuando outras áreas.", correct: false },
+                        { text: "Tornar todos os seus produtos de IA de código aberto.", correct: false }
+                    ],
+                    explanation: "A estratégia de Business AI da SAP é focada em ser Relevante (ancorada nos dados de negócio do cliente), Confiável (precisa e segura) e Responsável (ética e transparente), entregando IA que resolve problemas de negócio reais dentro dos fluxos de trabalho existentes."
+                },
+                en: {
+                    question: "What is SAP's strategy regarding AI?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To embed Relevant, Reliable, and Responsible AI directly into business processes.", correct: true },
+                        { text: "To compete directly with OpenAI in creating the largest foundational language model.", correct: false },
+                        { text: "To focus exclusively on AI for data analysis, discontinuing other areas.", correct: false },
+                        { text: "To make all its AI products open-source.", correct: false }
+                    ],
+                    explanation: "SAP's Business AI strategy is focused on being Relevant (grounded in customer business data), Reliable (accurate and secure), and Responsible (ethical and transparent), delivering AI that solves real business problems within existing workflows."
+                }
+            },
+            // 20
+            {
+                pt: {
+                    question: "Quais dos seguintes são exemplos de IA Generativa aplicada em soluções SAP? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Gerar descrições de cargo personalizadas no SAP SuccessFactors.", correct: true },
+                        { text: "Auxiliar desenvolvedores com sugestões de código ABAP no editor.", correct: true },
+                        { text: "Calcular a folha de pagamento de um funcionário.", correct: false },
+                        { text: "Processar uma ordem de venda no S/4HANA Cloud.", correct: false }
+                    ],
+                    explanation: "A IA Generativa se destaca em tarefas de criação de conteúdo, como gerar descrições de vagas ou auxiliar na escrita de código. O cálculo de folha de pagamento e o processamento de ordens são processos transacionais determinísticos, não sendo casos de uso típicos para IA Generativa."
+                },
+                en: {
+                    question: "Which of the following are examples of Generative AI applied in SAP solutions? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Generating personalized job descriptions in SAP SuccessFactors.", correct: true },
+                        { text: "Assisting developers with ABAP code suggestions in the editor.", correct: true },
+                        { text: "Calculating an employee's payroll.", correct: false },
+                        { text: "Processing a sales order in S/4HANA Cloud.", correct: false }
+                    ],
+                    explanation: "Generative AI excels at content creation tasks, such as generating job descriptions or assisting with code writing. Payroll calculation and sales order processing are deterministic transactional processes, not typical use cases for Generative AI."
+                }
+            },
+            // 21
+            {
+                pt: {
+                    question: "Qual o papel do Docker na criação de workflows para o SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Empacotar o código de treinamento e inferência em imagens de contêiner portáteis.", correct: true },
+                        { text: "Gerenciar o versionamento do código no GitHub.", correct: false },
+                        { text: "Prover a interface de linha de comando para o AI Core.", correct: false },
+                        { text: "Otimizar o consumo de memória dos modelos.", correct: false }
+                    ],
+                    explanation: "O SAP AI Core utiliza contêineres Docker para executar o código. Os desenvolvedores devem criar um Dockerfile que define o ambiente, as dependências e o script a ser executado para treinamento ou inferência, garantindo consistência e portabilidade."
+                },
+                en: {
+                    question: "What is the role of Docker in creating workflows for SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To package training and inference code into portable container images.", correct: true },
+                        { text: "To manage code versioning in GitHub.", correct: false },
+                        { text: "To provide the command-line interface for AI Core.", correct: false },
+                        { text: "To optimize the memory consumption of models.", correct: false }
+                    ],
+                    explanation: "SAP AI Core uses Docker containers to execute code. Developers must create a Dockerfile that defines the environment, dependencies, and the script to be executed for training or inference, ensuring consistency and portability."
+                }
+            },
+            // 22
+            {
+                pt: {
+                    question: "O que é definido em um 'template' de workflow no SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A sequência de passos (scripts) a serem executados para treinar ou servir um modelo.", correct: true },
+                        { text: "As credenciais de acesso ao sistema de origem.", correct: false },
+                        { text: "Os hiperparâmetros do modelo.", correct: false },
+                        { text: "A interface de usuário para o AI Launchpad.", correct: false }
+                    ],
+                    explanation: "O template de workflow, geralmente escrito em YAML (usando Argo Workflows), define a lógica de orquestração de um cenário de IA, especificando quais contêineres executar, em que ordem e com quais parâmetros."
+                },
+                en: {
+                    question: "What is defined in a workflow 'template' in SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "The sequence of steps (scripts) to be executed to train or serve a model.", correct: true },
+                        { text: "The access credentials for the source system.", correct: false },
+                        { text: "The model's hyperparameters.", correct: false },
+                        { text: "The user interface for the AI Launchpad.", correct: false }
+                    ],
+                    explanation: "The workflow template, usually written in YAML (using Argo Workflows), defines the orchestration logic of an AI scenario, specifying which containers to run, in what order, and with which parameters."
+                }
+            },
+            // 23
+            {
+                pt: {
+                    question: "Qual serviço da SAP BTP é comumente usado em conjunto com o SAP AI Core para armazenar datasets e modelos treinados?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Object Store", correct: true },
+                        { text: "SAP HANA Cloud", correct: false },
+                        { text: "SAP Data Warehouse Cloud", correct: false },
+                        { text: "SAP Integration Suite", correct: false }
+                    ],
+                    explanation: "O SAP Object Store (baseado em S3) é a solução padrão para armazenar grandes artefatos binários, como datasets e os arquivos de modelo gerados após o treinamento, que são então acessados pelo SAP AI Core."
+                },
+                en: {
+                    question: "Which SAP BTP service is commonly used with SAP AI Core to store datasets and trained models?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Object Store", correct: true },
+                        { text: "SAP HANA Cloud", correct: false },
+                        { text: "SAP Data Warehouse Cloud", correct: false },
+                        { text: "SAP Integration Suite", correct: false }
+                    ],
+                    explanation: "SAP Object Store (based on S3) is the standard solution for storing large binary artifacts, such as datasets and model files generated after training, which are then accessed by SAP AI Core."
+                }
+            },
+            // 24
+            {
+                pt: {
+                    question: "Ao fazer o deploy de um modelo no SAP AI Core, qual é o estado final esperado para uma inferência bem-sucedida?",
+                    correctCount: 1,
+                    options: [
+                        { text: "RUNNING", correct: true },
+                        { text: "DEPLOYED", correct: false },
+                        { text: "COMPLETED", correct: false },
+                        { text: "SERVING", correct: false }
+                    ],
+                    explanation: "Uma vez que um modelo é implantado ('deployed'), o SAP AI Core expõe um endpoint de inferência. O status 'RUNNING' para essa implantação indica que o serviço está ativo e pronto para receber requisições de previsão."
+                },
+                en: {
+                    question: "When deploying a model in SAP AI Core, what is the expected final state for successful inference?",
+                    correctCount: 1,
+                    options: [
+                        { text: "RUNNING", correct: true },
+                        { text: "DEPLOYED", correct: false },
+                        { text: "COMPLETED", correct: false },
+                        { text: "SERVING", correct: false }
+                    ],
+                    explanation: "Once a model is deployed, SAP AI Core exposes an inference endpoint. The 'RUNNING' status for this deployment indicates that the service is active and ready to receive prediction requests."
+                }
+            },
+            // 25
+            {
+                pt: {
+                    question: "Quais tipos de tarefas de IA o SAP AI Core é projetado para suportar? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Treinamento de modelos customizados de Machine Learning.", correct: true },
+                        { text: "Deploy e serviço de modelos para inferência em tempo real ou em lote.", correct: true },
+                        { text: "Criação de chatbots de conversação.", correct: false },
+                        { text: "Visualização de dados de negócio.", correct: false }
+                    ],
+                    explanation: "O SAP AI Core é uma plataforma agnóstica a frameworks, focada em orquestrar o ciclo de vida de modelos de IA, o que inclui tanto o treinamento (execução de pipelines de treinamento) quanto o deploy para consumo por outras aplicações."
+                },
+                en: {
+                    question: "What types of AI tasks is SAP AI Core designed to support? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Training custom Machine Learning models.", correct: true },
+                        { text: "Deploying and serving models for real-time or batch inference.", correct: true },
+                        { text: "Creating conversational chatbots.", correct: false },
+                        { text: "Visualizing business data.", correct: false }
+                    ],
+                    explanation: "SAP AI Core is a framework-agnostic platform focused on orchestrating the AI model lifecycle, which includes both training (executing training pipelines) and deployment for consumption by other applications."
+                }
+            },
+            // 26
+            {
+                pt: {
+                    question: "Como o Generative AI Hub garante que dados sensíveis não sejam expostos a provedores de LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Através de funcionalidades de anonimização e verificação de dados antes de enviar o prompt.", correct: true },
+                        { text: "Criptografando o prompt inteiro.", correct: false },
+                        { text: "Armazenando os dados em cache e não enviando-os.", correct: false },
+                        { text: "Ele não oferece essa garantia; a responsabilidade é do desenvolvedor.", correct: false }
+                    ],
+                    explanation: "Uma das principais propostas de valor do Hub é a governança. Ele inclui camadas que podem detectar e mascarar ou remover dados pessoais identificáveis (PII) e outras informações sensíveis do prompt antes que ele seja enviado para a API do LLM externo."
+                },
+                en: {
+                    question: "How does the Generative AI Hub ensure that sensitive data is not exposed to LLM providers?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Through data anonymization and verification features before sending the prompt.", correct: true },
+                        { text: "By encrypting the entire prompt.", correct: false },
+                        { text: "By caching the data and not sending it.", correct: false },
+                        { text: "It does not offer this guarantee; the responsibility lies with the developer.", correct: false }
+                    ],
+                    explanation: "One of the Hub's main value propositions is governance. It includes layers that can detect and mask or remove personally identifiable information (PII) and other sensitive information from the prompt before it is sent to the external LLM's API."
+                }
+            },
+            // 27
+            {
+                pt: {
+                    question: "Para usar o Playground do Generative AI Hub, qual é o primeiro passo de configuração necessário?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Assinar os modelos de LLM desejados (ex: GPT-4) e criar uma 'Deployment'.", correct: true },
+                        { text: "Configurar uma conexão com o SAP AI Core.", correct: false },
+                        { text: "Fazer o upload de um dataset.", correct: false },
+                        { text: "Escrever um script em Python.", correct: false }
+                    ],
+                    explanation: "Antes de poder usar um modelo no Playground, você precisa criar uma 'Deployment' para ele. Esse processo geralmente envolve aceitar os termos de uso do provedor do modelo e configurar o endpoint que será usado pelo Playground e pelas APIs."
+                },
+                en: {
+                    question: "To use the Generative AI Hub's Playground, what is the first necessary configuration step?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Subscribe to the desired LLM models (e.g., GPT-4) and create a 'Deployment'.", correct: true },
+                        { text: "Configure a connection to SAP AI Core.", correct: false },
+                        { text: "Upload a dataset.", correct: false },
+                        { text: "Write a Python script.", correct: false }
+                    ],
+                    explanation: "Before you can use a model in the Playground, you need to create a 'Deployment' for it. This process usually involves accepting the model provider's terms of use and configuring the endpoint that will be used by the Playground and APIs."
+                }
+            },
+            // 28
+            {
+                pt: {
+                    question: "O que é um 'Prompt Template' no Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Um prompt pré-definido e reutilizável que pode ser versionado e usado em diferentes aplicações.", correct: true },
+                        { text: "Um exemplo de um bom prompt na documentação.", correct: false },
+                        { text: "Uma função que gera prompts dinamicamente.", correct: false },
+                        { text: "A interface de usuário para criar prompts.", correct: false }
+                    ],
+                    explanation: "O Prompt Management no GenAI Hub permite que engenheiros de prompt criem, testem e versionem 'Prompt Templates'. Esses templates podem conter placeholders e são armazenados centralmente, permitindo que as aplicações os consumam de forma consistente e segura, sem embutir a lógica do prompt no código."
+                },
+                en: {
+                    question: "What is a 'Prompt Template' in the Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A pre-defined, reusable prompt that can be versioned and used across different applications.", correct: true },
+                        { text: "An example of a good prompt in the documentation.", correct: false },
+                        { text: "A function that dynamically generates prompts.", correct: false },
+                        { text: "The user interface for creating prompts.", correct: false }
+                    ],
+                    explanation: "Prompt Management in the GenAI Hub allows prompt engineers to create, test, and version 'Prompt Templates'. These templates can contain placeholders and are stored centrally, allowing applications to consume them consistently and securely without embedding prompt logic in the code."
+                }
+            },
+            // 29
+            {
+                pt: {
+                    question: "Qual das opções a seguir NÃO é um benefício direto do uso do Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Redução da latência da resposta do LLM para menos de 10 milissegundos.", correct: true },
+                        { text: "Gestão centralizada de custos e consumo de diferentes LLMs.", correct: false },
+                        { text: "Abstração da API, permitindo trocar de LLM sem reescrever o código da aplicação.", correct: false },
+                        { text: "Acesso a LLMs da SAP e de parceiros como a Cohere e OpenAI.", correct: false }
+                    ],
+                    explanation: "Embora o Hub otimize a comunicação, ele é uma camada de mediação e não pode garantir latências extremamente baixas, que dependem fundamentalmente da performance do provedor do LLM. As outras afirmações são verdadeiras."
+                },
+                en: {
+                    question: "Which of the following is NOT a direct benefit of using the Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Reduction of LLM response latency to less than 10 milliseconds.", correct: true },
+                        { text: "Centralized management of costs and consumption of different LLMs.", correct: false },
+                        { text: "API abstraction, allowing to switch LLMs without rewriting the application code.", correct: false },
+                        { text: "Access to LLMs from SAP and partners like Cohere and OpenAI.", correct: false }
+                    ],
+                    explanation: "While the Hub optimizes communication, it is a mediation layer and cannot guarantee extremely low latencies, which fundamentally depend on the LLM provider's performance. The other three are core benefits of the service."
+                }
+            },
+            // 30
+             {
+                pt: {
+                    question: "A integração de dados de negócio (grounding) no Generative AI Hub pode ser feita através de qual mecanismo?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Conectando o prompt a uma fonte de dados via 'Retrieval-Augmented Generation' (RAG).", correct: true },
+                        { text: "Ajuste fino (fine-tuning) do modelo base com todos os dados da empresa.", correct: false },
+                        { text: "Enviando o banco de dados inteiro da empresa no prompt.", correct: false },
+                        { text: "Treinando um LLM da SAP do zero.", correct: false }
+                    ],
+                    explanation: "O Hub implementa o padrão RAG para grounding. Ele busca informações relevantes de fontes de dados SAP (ou outras) com base na pergunta do usuário e injeta esse contexto no prompt enviado ao LLM, tornando a resposta mais precisa sem a necessidade de um caro e complexo fine-tuning."
+                },
+                en: {
+                    question: "How can business data integration (grounding) be done in the Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "By connecting the prompt to a data source via 'Retrieval-Augmented Generation' (RAG).", correct: true },
+                        { text: "By fine-tuning the base model with all company data.", correct: false },
+                        { text: "By sending the entire company database in the prompt.", correct: false },
+                        { text: "By training an SAP LLM from scratch.", correct: false }
+                    ],
+                    explanation: "The Hub implements the RAG pattern for grounding. It retrieves relevant information from SAP (or other) data sources based on the user's question and injects this context into the prompt sent to the LLM, making the answer more accurate without the need for expensive and complex fine-tuning."
+                }
+            },
+            // 31
+            {
+                pt: {
+                    question: "Qual é a principal diferença entre 'fine-tuning' e 'prompt engineering'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fine-tuning modifica os pesos do modelo de IA, enquanto prompt engineering não.", correct: true },
+                        { text: "Prompt engineering requer conhecimento de programação, enquanto fine-tuning não.", correct: false },
+                        { text: "Fine-tuning é mais rápido e barato que prompt engineering.", correct: false },
+                        { text: "Prompt engineering modifica a arquitetura do modelo, enquanto fine-tuning não.", correct: false }
+                    ],
+                    explanation: "Prompt engineering trabalha com o modelo 'como ele é', apenas otimizando a entrada. Fine-tuning é um processo de re-treinamento, onde o modelo base é treinado por mais algumas épocas em um dataset específico, atualizando seus pesos para se especializar em uma tarefa."
+                },
+                en: {
+                    question: "What is the main difference between 'fine-tuning' and 'prompt engineering'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fine-tuning modifies the AI model's weights, while prompt engineering does not.", correct: true },
+                        { text: "Prompt engineering requires programming knowledge, while fine-tuning does not.", correct: false },
+                        { text: "Fine-tuning is faster and cheaper than prompt engineering.", correct: false },
+                        { text: "Prompt engineering modifies the model's architecture, while fine-tuning does not.", correct: false }
+                    ],
+                    explanation: "Prompt engineering works with the model 'as is,' only optimizing the input. Fine-tuning is a re-training process, where the base model is trained for a few more epochs on a specific dataset, updating its weights to specialize in a task."
+                }
+            },
+            // 32
+            {
+                pt: {
+                    question: "O que são 'embeddings' no contexto de LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Representações vetoriais numéricas de palavras, frases ou documentos.", correct: true },
+                        { text: "Parâmetros de configuração de um prompt.", correct: false },
+                        { text: "Modelos de linguagem pequenos e eficientes.", correct: false },
+                        { text: "Logs de execução de um LLM.", correct: false }
+                    ],
+                    explanation: "Embeddings são a forma como os LLMs 'entendem' o texto. Eles convertem texto em vetores de números de alta dimensão, onde palavras e frases com significados semelhantes têm vetores próximos no espaço vetorial. São fundamentais para busca semântica e RAG."
+                },
+                en: {
+                    question: "What are 'embeddings' in the context of LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Numerical vector representations of words, phrases, or documents.", correct: true },
+                        { text: "Configuration parameters for a prompt.", correct: false },
+                        { text: "Small and efficient language models.", correct: false },
+                        { text: "Execution logs of an LLM.", correct: false }
+                    ],
+                    explanation: "Embeddings are how LLMs 'understand' text. They convert text into high-dimensional numerical vectors, where words and phrases with similar meanings have close vectors in the vector space. They are fundamental for semantic search and RAG."
+                }
+            },
+            // 33
+            {
+                pt: {
+                    question: "Ao projetar um prompt, qual dos seguintes elementos é crucial para evitar respostas vagas?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fornecer contexto claro e ser o mais específico possível na pergunta.", correct: true },
+                        { text: "Usar uma temperatura alta.", correct: false },
+                        { text: "Escrever o prompt em letras maiúsculas.", correct: false },
+                        { text: "Limitar o prompt a menos de 10 palavras.", correct: false }
+                    ],
+                    explanation: "A qualidade da saída de um LLM é diretamente proporcional à qualidade da entrada. Um prompt vago como 'Fale sobre SAP' gerará uma resposta genérica. Um prompt específico como 'Liste 3 benefícios de usar o SAP S/4HANA Cloud para uma empresa de manufatura' produzirá uma resposta muito mais útil."
+                },
+                en: {
+                    question: "When designing a prompt, which of the following elements is crucial to avoid vague answers?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Providing clear context and being as specific as possible in the question.", correct: true },
+                        { text: "Using a high temperature.", correct: false },
+                        { text: "Writing the prompt in all capital letters.", correct: false },
+                        { text: "Limiting the prompt to less than 10 words.", correct: false }
+                    ],
+                    explanation: "The quality of an LLM's output is directly proportional to the quality of the input. A vague prompt like 'Talk about SAP' will generate a generic answer. A specific prompt like 'List 3 benefits of using SAP S/4HANA Cloud for a manufacturing company' will produce a much more useful response."
+                }
+            },
+            // 34
+             {
+                pt: {
+                    question: "Qual das seguintes afirmações descreve corretamente o conceito de 'token' em LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "É a unidade básica de texto que o modelo processa, podendo ser uma palavra ou parte de uma palavra.", correct: true },
+                        { text: "É uma chave de API para acessar o modelo.", correct: false },
+                        { text: "É uma medida da confiança do modelo em sua resposta.", correct: false },
+                        { text: "É um sinônimo para 'parâmetro' do modelo.", correct: false }
+                    ],
+                    explanation: "LLMs não processam texto caractere por caractere. Eles usam um 'tokenizer' para quebrar a entrada em tokens (palavras comuns como 'the' ou sub-palavras como 'prompt' e 'ing'). O custo e os limites de contexto dos LLMs são medidos em tokens."
+                },
+                en: {
+                    question: "Which of the following statements correctly describes the concept of a 'token' in LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is the basic unit of text that the model processes, which can be a word or part of a word.", correct: true },
+                        { text: "It is an API key to access the model.", correct: false },
+                        { text: "It is a measure of the model's confidence in its answer.", correct: false },
+                        { text: "It is a synonym for model 'parameter'.", correct: false }
+                    ],
+                    explanation: "LLMs do not process text character by character. They use a 'tokenizer' to break the input into tokens (common words like 'the' or sub-words like 'prompt' and 'ing'). The cost and context limits of LLMs are measured in tokens."
+                }
+            },
+            // 35
+            {
+                pt: {
+                    question: "Quais são as limitações de usar apenas 'Zero-Shot Prompting'? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "O modelo pode não entender tarefas complexas ou com formatos de saída muito específicos.", correct: true },
+                        { text: "A performance pode ser inconsistente entre diferentes modelos e execuções.", correct: true },
+                        { text: "Requer uma grande quantidade de dados de exemplo no prompt.", correct: false },
+                        { text: "É computacionalmente mais caro que 'Few-Shot Prompting'.", correct: false }
+                    ],
+                    explanation: "Zero-shot prompting (apenas dar a instrução sem exemplos) depende inteiramente do conhecimento pré-existente do modelo. Para tarefas novas ou que exigem um formato de saída muito rígido, o modelo pode falhar ou ser inconsistente. Fornecer exemplos (few-shot) geralmente melhora a confiabilidade."
+                },
+                en: {
+                    question: "What are the limitations of using only 'Zero-Shot Prompting'? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "The model may not understand complex tasks or those with very specific output formats.", correct: true },
+                        { text: "Performance can be inconsistent across different models and runs.", correct: true },
+                        { text: "It requires a large amount of example data in the prompt.", correct: false },
+                        { text: "It is computationally more expensive than 'Few-Shot Prompting'.", correct: false }
+                    ],
+                    explanation: "Zero-shot prompting (just giving the instruction without examples) relies entirely on the model's pre-existing knowledge. For new tasks or those requiring a very rigid output format, the model may fail or be inconsistent. Providing examples (few-shot) generally improves reliability."
+                }
+            },
+            // 36
+            {
+                pt: {
+                    question: "A abordagem 'Business AI' da SAP enfatiza a IA que é... (Selecione três)",
+                    correctCount: 3,
+                    options: [
+                        { text: "Relevante (Relevant)", correct: true },
+                        { text: "Confiável (Reliable)", correct: true },
+                        { text: "Responsável (Responsible)", correct: true },
+                        { text: "Revolucionária (Revolutionary)", correct: false }
+                    ],
+                    explanation: "A estratégia da SAP para IA de negócios é construída sobre três pilares: ser Relevante para os processos de negócio do cliente, Confiável em suas saídas e operações, e Responsável em seu desenvolvimento e uso ético."
+                },
+                en: {
+                    question: "SAP's 'Business AI' approach emphasizes AI that is... (Select three)",
+                    correctCount: 3,
+                    options: [
+                        { text: "Relevant", correct: true },
+                        { text: "Reliable", correct: true },
+                        { text: "Responsible", correct: true },
+                        { text: "Revolutionary", correct: false }
+                    ],
+                    explanation: "SAP's strategy for business AI is built on three pillars: being Relevant to the customer's business processes, Reliable in its outputs and operations, and Responsible in its development and ethical use."
+                }
+            },
+            // 37
+            {
+                pt: {
+                    question: "Como o copiloto Joule ajuda a manter o contexto de negócio?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Ele é integrado diretamente nas aplicações SAP e acessa os dados e processos da aplicação em uso.", correct: true },
+                        { text: "Ele memoriza todas as conversas anteriores com todos os usuários.", correct: false },
+                        { text: "Ele pede ao usuário para fornecer o contexto a cada nova pergunta.", correct: false },
+                        { text: "Ele se conecta a um mecanismo de busca na internet.", correct: false }
+                    ],
+                    explanation: "A força do Joule vem de sua profunda integração com o portfólio de nuvem da SAP. Ele entende em qual tela o usuário está, qual transação está executando e quais dados está vendo, usando esse contexto para fornecer assistência relevante sem que o usuário precise explicar tudo do zero."
+                },
+                en: {
+                    question: "How does the Joule copilot help maintain business context?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is directly integrated into SAP applications and accesses the data and processes of the application in use.", correct: true },
+                        { text: "It memorizes all previous conversations with all users.", correct: false },
+                        { text: "It asks the user to provide context with each new question.", correct: false },
+                        { text: "It connects to an internet search engine.", correct: false }
+                    ],
+                    explanation: "Joule's strength comes from its deep integration with SAP's cloud portfolio. It understands which screen the user is on, what transaction they are performing, and what data they are seeing, using this context to provide relevant assistance without the user needing to explain everything from scratch."
+                }
+            },
+            // 38
+            {
+                pt: {
+                    question: "Qual o papel do ecossistema de parceiros na estratégia de IA da SAP?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Expandir as capacidades de IA, integrando modelos e tecnologias de parceiros líderes como OpenAI, Cohere e Aleph Alpha.", correct: true },
+                        { text: "Substituir completamente o desenvolvimento de IA interno da SAP.", correct: false },
+                        { text: "Limitar o acesso dos clientes a apenas um único provedor de modelo.", correct: false },
+                        { text: "Focar apenas em parceiros que oferecem hardware para IA.", correct: false }
+                    ],
+                    explanation: "A SAP adota uma abordagem de ecossistema aberto, integrando os melhores modelos de parceiros em seus produtos (como o Generative AI Hub) para oferecer escolha e as melhores capacidades aos clientes, ao mesmo tempo que desenvolve suas próprias soluções de IA."
+                },
+                en: {
+                    question: "What is the role of the partner ecosystem in SAP's AI strategy?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To expand AI capabilities by integrating models and technologies from leading partners like OpenAI, Cohere, and Aleph Alpha.", correct: true },
+                        { text: "To completely replace SAP's internal AI development.", correct: false },
+                        { text: "To limit customer access to only a single model provider.", correct: false },
+                        { text: "To focus only on partners that offer AI hardware.", correct: false }
+                    ],
+                    explanation: "SAP adopts an open ecosystem approach, integrating the best models from partners into its products (like the Generative AI Hub) to offer choice and the best capabilities to customers, while also developing its own AI solutions."
+                }
+            },
+            // 39
+             {
+                pt: {
+                    question: "Além de produtos como Joule e Generative AI Hub, onde mais a SAP está incorporando IA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Em funções inteligentes embarcadas em todo o portfólio, como SAP S/4HANA, SuccessFactors e Ariba.", correct: true },
+                        { text: "Apenas em suas ferramentas de desenvolvimento para BTP.", correct: false },
+                        { text: "Em um novo sistema operacional para servidores de IA.", correct: false },
+                        { text: "Apenas em soluções de CRM.", correct: false }
+                    ],
+                    explanation: "A estratégia da SAP é embarcar capacidades de IA de forma nativa em centenas de cenários de negócio dentro de suas aplicações de nuvem, tornando os processos mais inteligentes, automatizados e eficientes, muitas vezes de forma transparente para o usuário final."
+                },
+                en: {
+                    question: "Besides products like Joule and the Generative AI Hub, where else is SAP embedding AI?",
+                    correctCount: 1,
+                    options: [
+                        { text: "In intelligent functions embedded throughout the portfolio, such as SAP S/4HANA, SuccessFactors, and Ariba.", correct: true },
+                        { text: "Only in its development tools for BTP.", correct: false },
+                        { text: "In a new operating system for AI servers.", correct: false },
+                        { text: "Only in CRM solutions.", correct: false }
+                    ],
+                    explanation: "SAP's strategy is to embed AI capabilities natively into hundreds of business scenarios within its cloud applications, making processes more intelligent, automated, and efficient, often transparently to the end user."
+                }
+            },
+            // 40
+            {
+                pt: {
+                    question: "Qual o principal diferenciador da 'Business AI' da SAP em comparação com IAs de propósito geral?",
+                    correctCount: 1,
+                    options: [
+                        { text: "O acesso e a integração com os dados e processos de negócio críticos do cliente.", correct: true },
+                        { text: "O tamanho do modelo de linguagem fundamental.", correct: false },
+                        { text: "A capacidade de gerar imagens e vídeos.", correct: false },
+                        { text: "Ser totalmente gratuita para todos os clientes.", correct: false }
+                    ],
+                    explanation: "Enquanto IAs de propósito geral são poderosas, a SAP se diferencia ao aplicar essa tecnologia no contexto dos dados de negócio do cliente (ERP, HCM, CRM, etc.), o que permite resolver problemas de negócio específicos com muito mais precisão e relevância."
+                },
+                en: {
+                    question: "What is the main differentiator of SAP's 'Business AI' compared to general-purpose AIs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Access to and integration with the customer's critical business data and processes.", correct: true },
+                        { text: "The size of the foundational language model.", correct: false },
+                        { text: "The ability to generate images and videos.", correct: false },
+                        { text: "Being completely free for all customers.", correct: false }
+                    ],
+                    explanation: "While general-purpose AIs are powerful, SAP differentiates itself by applying this technology in the context of the customer's business data (ERP, HCM, CRM, etc.), which allows solving specific business problems with much greater accuracy and relevance."
+                }
+            },
+            // 41
+            {
+                pt: {
+                    question: "No SAP AI Core, qual a função de uma 'Configuration'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Definir os parâmetros de execução para um workflow, como datasets de entrada e hiperparâmetros.", correct: true },
+                        { text: "Gerenciar as versões do Docker.", correct: false },
+                        { text: "Configurar o acesso dos usuários ao AI Launchpad.", correct: false },
+                        { text: "Estabelecer a conexão com o Generative AI Hub.", correct: false }
+                    ],
+                    explanation: "Uma 'Configuration' associa um cenário de IA (AI Scenario) com um conjunto específico de parâmetros de entrada. Isso permite reutilizar o mesmo workflow de treinamento com diferentes datasets ou hiperparâmetros, criando diferentes 'Executions'."
+                },
+                en: {
+                    question: "In SAP AI Core, what is the function of a 'Configuration'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To define the execution parameters for a workflow, such as input datasets and hyperparameters.", correct: true },
+                        { text: "To manage Docker versions.", correct: false },
+                        { text: "To configure user access to the AI Launchpad.", correct: false },
+                        { text: "To establish the connection to the Generative AI Hub.", correct: false }
+                    ],
+                    explanation: "A 'Configuration' associates an AI Scenario with a specific set of input parameters. This allows reusing the same training workflow with different datasets or hyperparameters, creating different 'Executions'."
+                }
+            },
+            // 42
+            {
+                pt: {
+                    question: "Qual comando da CLI do SAP AI Core é usado para iniciar um treinamento?",
+                    correctCount: 1,
+                    options: [
+                        { text: "ai-core-sdk execution create", correct: true },
+                        { text: "ai-core-sdk training start", correct: false },
+                        { text: "ai-core-sdk model run", correct: false },
+                        { text: "ai-core-sdk workflow execute", correct: false }
+                    ],
+                    explanation: "Para iniciar uma nova execução (seja de treinamento ou outro workflow), você cria uma 'Execution' a partir de uma 'Configuration' existente, usando a API ou o SDK correspondente."
+                },
+                en: {
+                    question: "Which SAP AI Core CLI command is used to start a training run?",
+                    correctCount: 1,
+                    options: [
+                        { text: "ai-core-sdk execution create", correct: true },
+                        { text: "ai-core-sdk training start", correct: false },
+                        { text: "ai-core-sdk model run", correct: false },
+                        { text: "ai-core-sdk workflow execute", correct: false }
+                    ],
+                    explanation: "To start a new run (whether for training or another workflow), you create an 'Execution' from an existing 'Configuration', using the corresponding API or SDK."
+                }
+            },
+            // 43
+            {
+                pt: {
+                    question: "Qual o propósito de se usar um `requirements.txt` em um projeto do SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Listar as dependências Python que precisam ser instaladas na imagem Docker.", correct: true },
+                        { text: "Definir os requisitos de hardware para o treinamento.", correct: false },
+                        { text: "Listar os pré-requisitos para o usuário final.", correct: false },
+                        { text: "Documentar os objetivos do projeto de IA.", correct: false }
+                    ],
+                    explanation: "O arquivo `requirements.txt` é um padrão em projetos Python para especificar as bibliotecas necessárias (ex: scikit-learn, pandas, tensorflow). O `pip install -r requirements.txt` é tipicamente executado no Dockerfile para instalar essas dependências."
+                },
+                en: {
+                    question: "What is the purpose of using a `requirements.txt` file in an SAP AI Core project?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To list the Python dependencies that need to be installed in the Docker image.", correct: true },
+                        { text: "To define the hardware requirements for training.", correct: false },
+                        { text: "To list the prerequisites for the end user.", correct: false },
+                        { text: "To document the objectives of the AI project.", correct: false }
+                    ],
+                    explanation: "The `requirements.txt` file is a standard in Python projects to specify the necessary libraries (e.g., scikit-learn, pandas, tensorflow). The `pip install -r requirements.txt` command is typically run in the Dockerfile to install these dependencies."
+                }
+            },
+            // 44
+            {
+                pt: {
+                    question: "Qual das seguintes afirmações sobre o Generative AI Hub é FALSA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Ele exige que o cliente tenha sua própria conta e chave de API com cada provedor de LLM (OpenAI, Cohere, etc.).", correct: true },
+                        { text: "Ele fornece uma camada de persistência para o histórico de prompts.", correct: false },
+                        { text: "Ele permite o monitoramento de uso e custo dos LLMs.", correct: false },
+                        { text: "Ele pode ser chamado via API REST a partir de qualquer aplicação na BTP.", correct: false }
+                    ],
+                    explanation: "Uma das vantagens do Hub é que a SAP gerencia o relacionamento comercial com os provedores de LLM. O cliente usa o Hub através de sua conta BTP, e a SAP lida com a complexidade de faturamento e acesso com os parceiros. As outras afirmações são verdadeiras."
+                },
+                en: {
+                    question: "Which of the following statements about the Generative AI Hub is FALSE?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It requires the customer to have their own account and API key with each LLM provider (OpenAI, Cohere, etc.).", correct: true },
+                        { text: "It provides a persistence layer for prompt history.", correct: false },
+                        { text: "It allows monitoring of LLM usage and cost.", correct: false },
+                        { text: "It can be called via a REST API from any application on BTP.", correct: false }
+                    ],
+                    explanation: "One of the Hub's advantages is that SAP manages the commercial relationship with the LLM providers. The customer uses the Hub through their BTP account, and SAP handles the complexity of billing and access with partners. The other statements are true."
+                }
+            },
+            // 45
+            {
+                pt: {
+                    question: "O que o parâmetro 'top_k' controla em um LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Restringe a seleção da próxima palavra a um número 'k' de palavras mais prováveis.", correct: true },
+                        { text: "Define o número de respostas a serem geradas.", correct: false },
+                        { text: "Limita o número de tokens no prompt.", correct: false },
+                        { text: "Define a temperatura máxima.", correct: false }
+                    ],
+                    explanation: "Top-k sampling é uma técnica para controlar a aleatoriedade. Em vez de considerar todas as palavras possíveis, o modelo considera apenas as 'k' palavras com maior probabilidade e sorteia entre elas, evitando palavras muito improváveis e melhorando a coerência."
+                },
+                en: {
+                    question: "What does the 'top_k' parameter control in an LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It restricts the selection of the next word to a number 'k' of the most likely words.", correct: true },
+                        { text: "It defines the number of responses to be generated.", correct: false },
+                        { text: "It limits the number of tokens in the prompt.", correct: false },
+                        { text: "It defines the maximum temperature.", correct: false }
+                    ],
+                    explanation: "Top-k sampling is a technique to control randomness. Instead of considering all possible words, the model only considers the 'k' most probable words and samples from them, avoiding very unlikely words and improving coherence."
+                }
+            },
+            // 46
+            {
+                pt: {
+                    question: "Qual técnica de prompt é mais adequada para extrair informações estruturadas (como JSON) de um texto não estruturado?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fornecer um exemplo claro do formato de saída desejado no prompt (Few-shot).", correct: true },
+                        { text: "Aumentar a temperatura para 1.0.", correct: false },
+                        { text: "Usar um prompt muito curto e genérico.", correct: false },
+                        { text: "Pedir ao modelo para ser criativo.", correct: false }
+                    ],
+                    explanation: "Para obter saídas estruturadas, a melhor abordagem é ser explícito. Você deve instruir o modelo a responder em formato JSON e, idealmente, fornecer um exemplo (few-shot) da estrutura exata que você espera, incluindo chaves e tipos de valores."
+                },
+                en: {
+                    question: "Which prompt technique is most suitable for extracting structured information (like JSON) from unstructured text?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Providing a clear example of the desired output format in the prompt (Few-shot).", correct: true },
+                        { text: "Increasing the temperature to 1.0.", correct: false },
+                        { text: "Using a very short and generic prompt.", correct: false },
+                        { text: "Asking the model to be creative.", correct: false }
+                    ],
+                    explanation: "To get structured outputs, the best approach is to be explicit. You should instruct the model to respond in JSON format and ideally provide an example (few-shot) of the exact structure you expect, including keys and value types."
+                }
+            },
+            // 47
+            {
+                pt: {
+                    question: "Qual das seguintes é uma métrica comum para avaliar a qualidade de um LLM em tarefas de resumo?",
+                    correctCount: 1,
+                    options: [
+                        { text: "ROUGE (Recall-Oriented Understudy for Gisting Evaluation)", correct: true },
+                        { text: "Acurácia (Accuracy)", correct: false },
+                        { text: "Erro Quadrático Médio (Mean Squared Error)", correct: false },
+                        { text: "Latência (Latency)", correct: false }
+                    ],
+                    explanation: "ROUGE é um conjunto de métricas que avalia resumos comparando o resumo gerado pelo modelo com um ou mais resumos de referência (criados por humanos). Ele mede a sobreposição de n-grams, palavras e sequências."
+                },
+                en: {
+                    question: "Which of the following is a common metric for evaluating the quality of an LLM on summarization tasks?",
+                    correctCount: 1,
+                    options: [
+                        { text: "ROUGE (Recall-Oriented Understudy for Gisting Evaluation)", correct: true },
+                        { text: "Accuracy", correct: false },
+                        { text: "Mean Squared Error", correct: false },
+                        { text: "Latency", correct: false }
+                    ],
+                    explanation: "ROUGE is a set of metrics that evaluates summaries by comparing the model-generated summary with one or more reference summaries (created by humans). It measures the overlap of n-grams, words, and sequences."
+                }
+            },
+            // 48
+            {
+                pt: {
+                    question: "No contexto de IA Responsável, o que significa 'transparência'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Ser claro sobre como um sistema de IA funciona, quais dados utiliza e quais são suas limitações.", correct: true },
+                        { text: "Tornar o código-fonte do modelo totalmente aberto.", correct: false },
+                        { text: "Garantir que o modelo nunca cometa erros.", correct: false },
+                        { text: "Permitir que os usuários modifiquem o modelo.", correct: false }
+                    ],
+                    explanation: "Transparência é um pilar da IA Responsável que envolve fornecer explicações compreensíveis sobre as decisões e o funcionamento dos sistemas de IA, permitindo que os usuários confiem e entendam os resultados."
+                },
+                en: {
+                    question: "In the context of Responsible AI, what does 'transparency' mean?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Being clear about how an AI system works, what data it uses, and what its limitations are.", correct: true },
+                        { text: "Making the model's source code completely open.", correct: false },
+                        { text: "Ensuring the model never makes mistakes.", correct: false },
+                        { text: "Allowing users to modify the model.", correct: false }
+                    ],
+                    explanation: "Transparency is a pillar of Responsible AI that involves providing understandable explanations about the decisions and workings of AI systems, allowing users to trust and understand the results."
+                }
+            },
+            // 49
+            {
+                pt: {
+                    question: "O que o SAP AI Launchpad permite aos usuários fazer? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Monitorar o status de execuções de treinamento e deployments.", correct: true },
+                        { text: "Visualizar e gerenciar os cenários de IA e as configurações.", correct: true },
+                        { text: "Escrever e depurar código de treinamento de modelo.", correct: false },
+                        { text: "Configurar as permissões de acesso à BTP.", correct: false }
+                    ],
+                    explanation: "O AI Launchpad é a interface gráfica de usuário para o SAP AI Core. Ele é usado para gerenciamento e monitoramento, não para desenvolvimento de código, que é feito em um IDE local e versionado no Git."
+                },
+                en: {
+                    question: "What does the SAP AI Launchpad allow users to do? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "Monitor the status of training executions and deployments.", correct: true },
+                        { text: "View and manage AI scenarios and configurations.", correct: true },
+                        { text: "Write and debug model training code.", correct: false },
+                        { text: "Configure BTP access permissions.", correct: false }
+                    ],
+                    explanation: "The AI Launchpad is the graphical user interface for SAP AI Core. It is used for management and monitoring, not for code development, which is done in a local IDE and versioned in Git."
+                }
+            },
+            // 50
+            {
+                pt: {
+                    question: "Para que serve o conceito de 'persona' em um prompt de LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Para definir o tom, estilo e a perspectiva da resposta do modelo.", correct: true },
+                        { text: "Para autenticar o usuário.", correct: false },
+                        { text: "Para escolher qual modelo de LLM usar.", correct: false },
+                        { text: "Para limitar a quantidade de tokens na resposta.", correct: false }
+                    ],
+                    explanation: "Instruir o LLM a adotar uma persona (ex: 'Aja como um historiador', 'Você é um assistente prestativo') é uma técnica poderosa para guiar a resposta a ter o estilo e a profundidade adequados para a tarefa."
+                },
+                en: {
+                    question: "What is the purpose of the 'persona' concept in an LLM prompt?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To define the tone, style, and perspective of the model's response.", correct: true },
+                        { text: "To authenticate the user.", correct: false },
+                        { text: "To choose which LLM model to use.", correct: false },
+                        { text: "To limit the number of tokens in the response.", correct: false }
+                    ],
+                    explanation: "Instructing the LLM to adopt a persona (e.g., 'Act as a historian,' 'You are a helpful assistant') is a powerful technique to guide the response to have the appropriate style and depth for the task."
+                }
+            },
+            // 51
+             {
+                pt: {
+                    question: "Qual é a principal vantagem de usar o SDK do SAP AI Core em vez da API REST diretamente?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Abstrai a complexidade das chamadas HTTP e gerencia o estado.", correct: true },
+                        { text: "É a única maneira de iniciar execuções de treinamento.", correct: false },
+                        { text: "Oferece melhor performance e menor latência.", correct: false },
+                        { text: "Permite o uso de mais linguagens de programação.", correct: false }
+                    ],
+                    explanation: "O SDK (Software Development Kit) fornece funções e classes de alto nível que simplificam a interação com a API REST, tratando de autenticação, formatação de requisições e polling de status, tornando o código do desenvolvedor mais limpo e menos propenso a erros."
+                },
+                en: {
+                    question: "What is the main advantage of using the SAP AI Core SDK instead of the REST API directly?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It abstracts the complexity of HTTP calls and manages state.", correct: true },
+                        { text: "It is the only way to start training executions.", correct: false },
+                        { text: "It offers better performance and lower latency.", correct: false },
+                        { text: "It allows the use of more programming languages.", correct: false }
+                    ],
+                    explanation: "The SDK (Software Development Kit) provides high-level functions and classes that simplify interaction with the REST API, handling authentication, request formatting, and status polling, making the developer's code cleaner and less error-prone."
+                }
+            },
+            // 52
+            {
+                pt: {
+                    question: "O que é 'model drift' e por que é importante monitorá-lo?",
+                    correctCount: 1,
+                    options: [
+                        { text: "É a degradação da performance de um modelo em produção ao longo do tempo, pois os dados do mundo real mudam.", correct: true },
+                        { text: "É uma mudança na arquitetura do modelo durante o treinamento.", correct: false },
+                        { text: "É um erro de compilação no código do modelo.", correct: false },
+                        { text: "É a diferença entre a acurácia de treinamento e a de validação.", correct: false }
+                    ],
+                    explanation: "Model drift ocorre quando as características estatísticas dos dados de inferência divergem dos dados de treinamento, fazendo com que a precisão do modelo caia. Monitorar o drift é crucial para saber quando um modelo precisa ser retreinado."
+                },
+                en: {
+                    question: "What is 'model drift' and why is it important to monitor it?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is the degradation of a model's performance in production over time as real-world data changes.", correct: true },
+                        { text: "It is a change in the model's architecture during training.", correct: false },
+                        { text: "It is a compilation error in the model's code.", correct: false },
+                        { text: "It is the difference between training accuracy and validation accuracy.", correct: false }
+                    ],
+                    explanation: "Model drift occurs when the statistical characteristics of inference data diverge from the training data, causing the model's accuracy to drop. Monitoring drift is crucial to know when a model needs to be retrained."
+                }
+            },
+            // 53
+            {
+                pt: {
+                    question: "No Generative AI Hub, o que o 'Prompt History' permite fazer?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Visualizar os prompts enviados anteriormente, suas respostas e os parâmetros usados.", correct: true },
+                        { text: "Reverter um modelo de LLM para uma versão anterior.", correct: false },
+                        { text: "Compartilhar prompts com outros usuários da BTP.", correct: false },
+                        { text: "Analisar o custo de cada prompt.", correct: false }
+                    ],
+                    explanation: "O histórico de prompts no Playground é uma ferramenta útil para rastrear experimentos, comparar resultados de diferentes formulações de prompt ou configurações de modelo e depurar problemas."
+                },
+                en: {
+                    question: "In the Generative AI Hub, what does the 'Prompt History' allow you to do?",
+                    correctCount: 1,
+                    options: [
+                        { text: "View previously sent prompts, their responses, and the parameters used.", correct: true },
+                        { text: "Revert an LLM model to a previous version.", correct: false },
+                        { text: "Share prompts with other BTP users.", correct: false },
+                        { text: "Analyze the cost of each prompt.", correct: false }
+                    ],
+                    explanation: "The prompt history in the Playground is a useful tool for tracking experiments, comparing results from different prompt formulations or model configurations, and debugging issues."
+                }
+            },
+            // 54
+            {
+                pt: {
+                    question: "Qual das seguintes NÃO é uma arquitetura de Transformer?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Convolutional Neural Network (CNN)", correct: true },
+                        { text: "Encoder-Decoder (usada em modelos como T5)", correct: false },
+                        { text: "Decoder-only (usada em modelos como GPT)", correct: false },
+                        { text: "Encoder-only (usada em modelos como BERT)", correct: false }
+                    ],
+                    explanation: "CNNs são um tipo de rede neural tradicionalmente usadas para processamento de imagem. As arquiteturas baseadas em Transformer (Encoder-Decoder, Decoder-only, Encoder-only) são a base para a maioria dos LLMs modernos."
+                },
+                en: {
+                    question: "Which of the following is NOT a Transformer architecture?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Convolutional Neural Network (CNN)", correct: true },
+                        { text: "Encoder-Decoder (used in models like T5)", correct: false },
+                        { text: "Decoder-only (used in models like GPT)", correct: false },
+                        { text: "Encoder-only (used in models like BERT)", correct: false }
+                    ],
+                    explanation: "CNNs are a type of neural network traditionally used for image processing. Transformer-based architectures (Encoder-Decoder, Decoder-only, Encoder-only) are the foundation for most modern LLMs."
+                }
+            },
+            // 55
+            {
+                pt: {
+                    question: "O que significa dizer que um LLM é 'pré-treinado'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Que ele foi treinado em uma vasta quantidade de dados textuais da internet para aprender linguagem geral.", correct: true },
+                        { text: "Que ele já foi ajustado para uma tarefa específica.", correct: false },
+                        { text: "Que ele foi treinado apenas com dados da SAP.", correct: false },
+                        { text: "Que ele é uma versão pequena de um modelo maior.", correct: false }
+                    ],
+                    explanation: "A fase de pré-treinamento é onde o modelo fundamental aprende gramática, fatos, raciocínio e representações de linguagem a partir de um corpus massivo e diversificado de texto e código. É a base sobre a qual o fine-tuning e o prompting operam."
+                },
+                en: {
+                    question: "What does it mean for an LLM to be 'pre-trained'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "That it was trained on a vast amount of textual data from the internet to learn general language.", correct: true },
+                        { text: "That it has already been fine-tuned for a specific task.", correct: false },
+                        { text: "That it was trained only with SAP data.", correct: false },
+                        { text: "That it is a small version of a larger model.", correct: false }
+                    ],
+                    explanation: "The pre-training phase is where the foundational model learns grammar, facts, reasoning, and language representations from a massive and diverse corpus of text and code. It is the foundation on which fine-tuning and prompting operate."
+                }
+            },
+            // 56
+            {
+                pt: {
+                    question: "Qual das seguintes tarefas é um caso de uso ruim para a IA Generativa?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Realizar cálculos financeiros precisos para fechamento contábil.", correct: true },
+                        { text: "Gerar um rascunho de e-mail para um cliente.", correct: false },
+                        { text: "Sugerir nomes criativos para um novo produto.", correct: false },
+                        { text: "Resumir uma longa cadeia de e-mails.", correct: false }
+                    ],
+                    explanation: "LLMs são probabilísticos e propensos a alucinações, o que os torna inadequados para tarefas que exigem 100% de precisão determinística, como cálculos contábeis. Processos transacionais e matemáticos devem usar software tradicional."
+                },
+                en: {
+                    question: "Which of the following tasks is a poor use case for Generative AI?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Performing precise financial calculations for accounting closing.", correct: true },
+                        { text: "Generating a draft email to a customer.", correct: false },
+                        { text: "Suggesting creative names for a new product.", correct: false },
+                        { text: "Summarizing a long email chain.", correct: false }
+                    ],
+                    explanation: "LLMs are probabilistic and prone to hallucinations, making them unsuitable for tasks requiring 100% deterministic accuracy, such as accounting calculations. Transactional and mathematical processes should use traditional software."
+                }
+            },
+            // 57
+            {
+                pt: {
+                    question: "Como o princípio de IA Responsável de 'Justiça' (Fairness) se aplica aos LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Garantindo que o modelo não produza resultados enviesados ou discriminatórios contra grupos demográficos.", correct: true },
+                        { text: "Garantindo que o custo de uso seja justo para todos os clientes.", correct: false },
+                        { text: "Garantindo que o modelo trate todos os prompts com a mesma prioridade.", correct: false },
+                        { text: "Garantindo que o modelo seja preciso.", correct: false }
+                    ],
+                    explanation: "Justiça ou equidade em IA refere-se a mitigar vieses (biases) que podem estar presentes nos dados de treinamento. Um modelo justo não deve perpetuar ou amplificar estereótipos ou tratar de forma desigual indivíduos com base em características como gênero, raça ou idade."
+                },
+                en: {
+                    question: "How does the Responsible AI principle of 'Fairness' apply to LLMs?",
+                    correctCount: 1,
+                    options: [
+                        { text: "By ensuring the model does not produce biased or discriminatory results against demographic groups.", correct: true },
+                        { text: "By ensuring the cost of use is fair for all customers.", correct: false },
+                        { text: "By ensuring the model treats all prompts with the same priority.", correct: false },
+                        { text: "By ensuring the model is accurate.", correct: false }
+                    ],
+                    explanation: "Fairness in AI refers to mitigating biases that may be present in the training data. A fair model should not perpetuate or amplify stereotypes or treat individuals unequally based on characteristics such as gender, race, or age."
+                }
+            },
+            // 58
+            {
+                pt: {
+                    question: "No SAP AI Core, como você pode disponibilizar um modelo treinado para outras aplicações consumirem?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Criando um 'Deployment' que expõe uma URL de inferência.", correct: true },
+                        { text: "Enviando o arquivo do modelo por e-mail.", correct: false },
+                        { text: "Publicando o modelo no GitHub.", correct: false },
+                        { text: "Dando acesso direto ao SAP Object Store.", correct: false }
+                    ],
+                    explanation: "O processo de 'Deployment' no SAP AI Core pega um modelo registrado e o empacota em um serviço web com um endpoint de API RESTful. Outras aplicações podem então fazer chamadas a essa URL para obter previsões."
+                },
+                en: {
+                    question: "In SAP AI Core, how can you make a trained model available for other applications to consume?",
+                    correctCount: 1,
+                    options: [
+                        { text: "By creating a 'Deployment' that exposes an inference URL.", correct: true },
+                        { text: "By sending the model file via email.", correct: false },
+                        { text: "By publishing the model on GitHub.", correct: false },
+                        { text: "By giving direct access to the SAP Object Store.", correct: false }
+                    ],
+                    explanation: "The 'Deployment' process in SAP AI Core takes a registered model and packages it into a web service with a RESTful API endpoint. Other applications can then make calls to this URL to get predictions."
+                }
+            },
+            // 59
+            {
+                pt: {
+                    question: "Para uma tarefa de classificação de e-mails de suporte em categorias (ex: 'Faturamento', 'Técnico', 'Feedback'), qual técnica de prompt seria um bom ponto de partida?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Zero-shot com instruções claras e uma lista de categorias permitidas.", correct: true },
+                        { text: "Chain-of-Thought prompting.", correct: false },
+                        { text: "Pedir ao modelo para gerar uma história.", correct: false },
+                        { text: "Usar uma temperatura muito alta.", correct: false }
+                    ],
+                    explanation: "A classificação de texto é uma tarefa em que os LLMs se destacam mesmo sem exemplos (zero-shot). O prompt deve ser claro, como: 'Classifique o seguinte e-mail em uma das seguintes categorias: Faturamento, Técnico, Feedback. Responda apenas com o nome da categoria. E-mail: ...'"
+                },
+                en: {
+                    question: "For a task of classifying support emails into categories (e.g., 'Billing', 'Technical', 'Feedback'), which prompt technique would be a good starting point?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Zero-shot with clear instructions and a list of allowed categories.", correct: true },
+                        { text: "Chain-of-Thought prompting.", correct: false },
+                        { text: "Asking the model to generate a story.", correct: false },
+                        { text: "Using a very high temperature.", correct: false }
+                    ],
+                    explanation: "Text classification is a task where LLMs excel even without examples (zero-shot). The prompt should be clear, such as: 'Classify the following email into one of the following categories: Billing, Technical, Feedback. Respond only with the category name. Email: ...'"
+                }
+            },
+            // 60
+            {
+                pt: {
+                    question: "Qual o objetivo principal de usar o copiloto Joule no SAP S/4HANA Cloud?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Simplificar tarefas e fornecer insights rápidos sem que o usuário precise navegar por múltiplas telas.", correct: true },
+                        { text: "Substituir a necessidade de consultores funcionais SAP.", correct: false },
+                        { text: "Executar customizações complexas de código ABAP.", correct: false },
+                        { text: "Garantir a segurança do sistema contra ataques externos.", correct: false }
+                    ],
+                    explanation: "Joule atua como um assistente inteligente, permitindo que os usuários interajam com o sistema SAP usando linguagem natural. Eles podem pedir para criar um relatório, encontrar uma ordem de compra ou resumir o status de um cliente, e Joule executa a ação ou busca a informação, aumentando a produtividade."
+                },
+                en: {
+                    question: "What is the main objective of using the Joule copilot in SAP S/4HANA Cloud?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To simplify tasks and provide quick insights without the user needing to navigate multiple screens.", correct: true },
+                        { text: "To replace the need for SAP functional consultants.", correct: false },
+                        { text: "To execute complex ABAP code customizations.", correct: false },
+                        { text: "To ensure system security against external attacks.", correct: false }
+                    ],
+                    explanation: "Joule acts as an intelligent assistant, allowing users to interact with the SAP system using natural language. They can ask to create a report, find a purchase order, or summarize a customer's status, and Joule performs the action or retrieves the information, increasing productivity."
+                }
+            },
+            // 61
+             {
+                pt: {
+                    question: "Quais dos seguintes são considerados Large Language Models (LLMs)? (Selecione duas)",
+                    correctCount: 2,
+                    options: [
+                        { text: "GPT-4 (da OpenAI)", correct: true },
+                        { text: "LLaMA (da Meta)", correct: true },
+                        { text: "Scikit-learn (biblioteca de ML)", correct: false },
+                        { text: "TensorFlow (framework de deep learning)", correct: false }
+                    ],
+                    explanation: "GPT-4 e LLaMA são exemplos de modelos de linguagem grandes e fundamentais. Scikit-learn e TensorFlow são ferramentas (bibliotecas/frameworks) usadas para construir e treinar modelos de IA, incluindo LLMs, mas não são os modelos em si."
+                },
+                en: {
+                    question: "Which of the following are considered Large Language Models (LLMs)? (Select two)",
+                    correctCount: 2,
+                    options: [
+                        { text: "GPT-4 (from OpenAI)", correct: true },
+                        { text: "LLaMA (from Meta)", correct: true },
+                        { text: "Scikit-learn (ML library)", correct: false },
+                        { text: "TensorFlow (deep learning framework)", correct: false }
+                    ],
+                    explanation: "GPT-4 and LLaMA are examples of large, foundational language models. Scikit-learn and TensorFlow are tools (libraries/frameworks) used to build and train AI models, including LLMs, but are not the models themselves."
+                }
+            },
+            // 62
+            {
+                pt: {
+                    question: "Dentro do SAP BTP, qual serviço é mais adequado para orquestrar um processo de negócio que envolve uma etapa de aprovação humana e uma chamada para a IA Generativa?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Build Process Automation", correct: true },
+                        { text: "SAP AI Core", correct: false },
+                        { text: "SAP Generative AI Hub", correct: false },
+                        { text: "SAP Integration Suite", correct: false }
+                    ],
+                    explanation: "O SAP Build Process Automation é projetado para criar workflows de negócio, que podem incluir tarefas manuais, regras de decisão e chamadas de API para outros serviços, como o Generative AI Hub, combinando automação de processos com o poder da IA."
+                },
+                en: {
+                    question: "Within SAP BTP, which service is best suited for orchestrating a business process that involves a human approval step and a call to Generative AI?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Build Process Automation", correct: true },
+                        { text: "SAP AI Core", correct: false },
+                        { text: "SAP Generative AI Hub", correct: false },
+                        { text: "SAP Integration Suite", correct: false }
+                    ],
+                    explanation: "SAP Build Process Automation is designed to create business workflows, which can include manual tasks, decision rules, and API calls to other services like the Generative AI Hub, combining process automation with the power of AI."
+                }
+            },
+            // 63
+            {
+                pt: {
+                    question: "O que é 'Hallucination' (Alucinação) em um LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Quando o modelo gera uma resposta que parece plausível, mas é factualmente incorreta ou inventada.", correct: true },
+                        { text: "Quando o modelo responde em um idioma inesperado.", correct: false },
+                        { text: "Um erro que faz o modelo parar de responder.", correct: false },
+                        { text: "Uma resposta excessivamente criativa e artística.", correct: false }
+                    ],
+                    explanation: "Alucinações são um dos maiores desafios dos LLMs. O modelo pode 'inventar' fatos, citações ou dados com grande confiança. Técnicas como RAG (grounding) são usadas para mitigar esse risco."
+                },
+                en: {
+                    question: "What is 'Hallucination' in an LLM?",
+                    correctCount: 1,
+                    options: [
+                        { text: "When the model generates a response that seems plausible but is factually incorrect or fabricated.", correct: true },
+                        { text: "When the model responds in an unexpected language.", correct: false },
+                        { text: "An error that causes the model to stop responding.", correct: false },
+                        { text: "An overly creative and artistic response.", correct: false }
+                    ],
+                    explanation: "Hallucinations are one of the biggest challenges with LLMs. The model can 'invent' facts, quotes, or data with great confidence. Techniques like RAG (grounding) are used to mitigate this risk."
+                }
+            },
+            // 64
+            {
+                pt: {
+                    question: "Qual o propósito da camada semântica (semantic layer) do SAP Datasphere em conjunto com IA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Prover um contexto de negócio consistente e governado para as aplicações de IA, garantindo que elas usem as definições corretas.", correct: true },
+                        { text: "Acelerar o treinamento dos modelos de IA.", correct: false },
+                        { text: "Converter texto em fala.", correct: false },
+                        { text: "Armazenar os pesos dos modelos de LLM.", correct: false }
+                    ],
+                    explanation: "A camada semântica do SAP Datasphere mapeia os dados técnicos para termos de negócio (ex: 'Cliente', 'Receita Líquida'). Ao conectar a IA a essa camada, garante-se que os prompts e os dados usados para grounding sejam baseados em uma fonte única da verdade, com governança e linhagem."
+                },
+                en: {
+                    question: "What is the purpose of the semantic layer of SAP Datasphere in conjunction with AI?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To provide a consistent and governed business context for AI applications, ensuring they use the correct definitions.", correct: true },
+                        { text: "To accelerate the training of AI models.", correct: false },
+                        { text: "To convert text to speech.", correct: false },
+                        { text: "To store the weights of LLM models.", correct: false }
+                    ],
+                    explanation: "The semantic layer of SAP Datasphere maps technical data to business terms (e.g., 'Customer', 'Net Revenue'). By connecting AI to this layer, it is ensured that prompts and data used for grounding are based on a single source of truth, with governance and lineage."
+                }
+            },
+            // 65
+             {
+                pt: {
+                    question: "Ao criar um prompt para resumir um texto, qual instrução pode ajudar a controlar o tamanho do resumo?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Especificar um limite de palavras ou frases (ex: 'Resuma em menos de 50 palavras').", correct: true },
+                        { text: "Aumentar a temperatura.", correct: false },
+                        { text: "Definir uma persona.", correct: false },
+                        { text: "Usar few-shot prompting.", correct: false }
+                    ],
+                    explanation: "Ser explícito sobre as restrições de formato é uma prática fundamental do prompt engineering. Instruções como 'Resuma em 3 pontos principais' ou 'Crie um resumo de um parágrafo' guiam o modelo a gerar uma saída no comprimento desejado."
+                },
+                en: {
+                    question: "When creating a prompt to summarize a text, which instruction can help control the summary's length?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Specifying a word or sentence limit (e.g., 'Summarize in under 50 words').", correct: true },
+                        { text: "Increasing the temperature.", correct: false },
+                        { text: "Defining a persona.", correct: false },
+                        { text: "Using few-shot prompting.", correct: false }
+                    ],
+                    explanation: "Being explicit about format constraints is a fundamental practice of prompt engineering. Instructions like 'Summarize in 3 main points' or 'Create a one-paragraph summary' guide the model to generate an output of the desired length."
+                }
+            },
+            // 66
+            {
+                pt: {
+                    question: "Qual o papel do SAP Business Technology Platform (BTP) na estratégia de Business AI da SAP?",
+                    correctCount: 1,
+                    options: [
+                        { text: "É a plataforma tecnológica fundamental que hospeda os serviços de IA (AI Core, GenAI Hub) e permite a extensão e integração com aplicações de negócio.", correct: true },
+                        { text: "É um novo sistema ERP focado em IA.", correct: false },
+                        { text: "É um marketplace para comprar e vender modelos de IA.", correct: false },
+                        { text: "É o nome da suíte de aplicações de nuvem da SAP.", correct: false }
+                    ],
+                    explanation: "A BTP é a base sobre a qual a estratégia de Business AI da SAP é construída. Ela fornece os serviços de runtime (como o AI Core), os serviços de acesso a modelos (GenAI Hub), os serviços de dados (HANA Cloud, Datasphere) e as ferramentas de desenvolvimento (SAP Build) para criar e operar soluções de IA integradas."
+                },
+                en: {
+                    question: "What is the role of the SAP Business Technology Platform (BTP) in SAP's Business AI strategy?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is the fundamental technology platform that hosts AI services (AI Core, GenAI Hub) and enables extension and integration with business applications.", correct: true },
+                        { text: "It is a new ERP system focused on AI.", correct: false },
+                        { text: "It is a marketplace for buying and selling AI models.", correct: false },
+                        { text: "It is the name of SAP's suite of cloud applications.", correct: false }
+                    ],
+                    explanation: "The BTP is the foundation upon which SAP's Business AI strategy is built. It provides runtime services (like AI Core), model access services (GenAI Hub), data services (HANA Cloud, Datasphere), and development tools (SAP Build) to create and operate integrated AI solutions."
+                }
+            },
+            // 67
+             {
+                pt: {
+                    question: "Qual das seguintes afirmações sobre o Joule é VERDADEIRA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Ele é projetado para entender o contexto de negócio da aplicação SAP em que está sendo executado.", correct: true },
+                        { text: "Ele está disponível apenas para sistemas SAP on-premise.", correct: false },
+                        { text: "Ele requer que cada usuário treine seu próprio modelo de linguagem.", correct: false },
+                        { text: "Ele foi desenvolvido para substituir completamente a interface de usuário SAP Fiori.", correct: false }
+                    ],
+                    explanation: "O poder do Joule reside em sua consciência contextual. Ele sabe quem é o usuário, em qual aplicativo ele está e o que está tentando fazer, permitindo uma assistência muito mais relevante do que um chatbot genérico."
+                },
+                en: {
+                    question: "Which of the following statements about Joule is TRUE?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is designed to understand the business context of the SAP application in which it is running.", correct: true },
+                        { text: "It is only available for on-premise SAP systems.", correct: false },
+                        { text: "It requires each user to train their own language model.", correct: false },
+                        { text: "It was developed to completely replace the SAP Fiori user interface.", correct: false }
+                    ],
+                    explanation: "Joule's power lies in its contextual awareness. It knows who the user is, which application they are in, and what they are trying to do, allowing for much more relevant assistance than a generic chatbot."
+                }
+            },
+            // 68
+            {
+                pt: {
+                    question: "Qual a finalidade de se ter um 'Executable' no SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "É a definição de um script ou artefato que pode ser executado como um passo em um workflow.", correct: true },
+                        { text: "É o log de uma execução de workflow.", correct: false },
+                        { text: "É o modelo treinado e pronto para deploy.", correct: false },
+                        { text: "É a interface de linha de comando (CLI).", correct: false }
+                    ],
+                    explanation: "Dentro de um cenário de IA, um 'Executable' define um bloco de código (geralmente apontando para um script dentro de um contêiner Docker) que pode ser referenciado nos templates de workflow. Por exemplo, você pode ter executáveis para 'train', 'evaluate' e 'serve'."
+                },
+                en: {
+                    question: "What is the purpose of an 'Executable' in SAP AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is the definition of a script or artifact that can be executed as a step in a workflow.", correct: true },
+                        { text: "It is the log of a workflow execution.", correct: false },
+                        { text: "It is the trained model ready for deployment.", correct: false },
+                        { text: "It is the command-line interface (CLI).", correct: false }
+                    ],
+                    explanation: "Within an AI scenario, an 'Executable' defines a block of code (usually pointing to a script inside a Docker container) that can be referenced in workflow templates. For example, you can have executables for 'train', 'evaluate', and 'serve'."
+                }
+            },
+            // 69
+            {
+                pt: {
+                    question: "Qual técnica de prompt envolve decompor uma tarefa complexa em etapas mais simples e pedir ao LLM para executar uma de cada vez?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Chain-of-Thought (CoT) ou Step-by-Step Prompting", correct: true },
+                        { text: "Zero-Shot Prompting", correct: false },
+                        { text: "RAG", correct: false },
+                        { text: "Fine-tuning", correct: false }
+                    ],
+                    explanation: "Para problemas complexos, em vez de pedir a resposta final de uma vez, é mais eficaz guiar o modelo através de um processo de raciocínio, seja pedindo para ele explicar seus passos (CoT) ou dando a ele uma série de prompts menores e sequenciais."
+                },
+                en: {
+                    question: "Which prompt technique involves breaking down a complex task into simpler steps and asking the LLM to perform them one at a time?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Chain-of-Thought (CoT) or Step-by-Step Prompting", correct: true },
+                        { text: "Zero-Shot Prompting", correct: false },
+                        { text: "RAG", correct: false },
+                        { text: "Fine-tuning", correct: false }
+                    ],
+                    explanation: "For complex problems, instead of asking for the final answer all at once, it is more effective to guide the model through a reasoning process, either by asking it to explain its steps (CoT) or by giving it a series of smaller, sequential prompts."
+                }
+            },
+            // 70
+            {
+                pt: {
+                    question: "Por que a governança de dados é crucial ao usar o Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Para controlar quais dados da empresa podem ser usados em prompts e enviados para modelos de terceiros.", correct: true },
+                        { text: "Para garantir que apenas administradores possam usar o Playground.", correct: false },
+                        { text: "Para otimizar a velocidade das respostas dos LLMs.", correct: false },
+                        { text: "Para traduzir os prompts para o inglês.", correct: false }
+                    ],
+                    explanation: "A governança é fundamental para a segurança e conformidade. O Generative AI Hub fornece ferramentas para garantir que apenas dados apropriados e não sensíveis sejam usados como contexto (grounding) para os LLMs, protegendo a propriedade intelectual e a privacidade da empresa."
+                },
+                en: {
+                    question: "Why is data governance crucial when using the Generative AI Hub?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To control which company data can be used in prompts and sent to third-party models.", correct: true },
+                        { text: "To ensure that only administrators can use the Playground.", correct: false },
+                        { text: "To optimize the speed of LLM responses.", correct: false },
+                        { text: "To translate prompts into English.", correct: false }
+                    ],
+                    explanation: "Governance is essential for security and compliance. The Generative AI Hub provides tools to ensure that only appropriate and non-sensitive data is used as context (grounding) for LLMs, protecting the company's intellectual property and privacy."
+                }
+            },
+            // 71
+            {
+                pt: {
+                    question: "Qual das seguintes é uma característica de uma arquitetura 'decoder-only' de LLM (como a série GPT)?",
+                    correctCount: 1,
+                    options: [
+                        { text: "É otimizada para tarefas de geração de texto, prevendo a próxima palavra em uma sequência.", correct: true },
+                        { text: "É bidirecional e excelente para entender o contexto de uma palavra (como o BERT).", correct: false },
+                        { text: "Requer sempre uma entrada e uma saída de mesmo comprimento.", correct: false },
+                        { text: "É usada principalmente para classificação de imagens.", correct: false }
+                    ],
+                    explanation: "Modelos decoder-only são auto-regressivos e processam o texto em uma direção (geralmente da esquerda para a direita). Isso os torna naturalmente adequados para gerar texto contínuo, como em chatbots, resumos e escrita criativa."
+                },
+                en: {
+                    question: "Which of the following is a characteristic of a 'decoder-only' LLM architecture (like the GPT series)?",
+                    correctCount: 1,
+                    options: [
+                        { text: "It is optimized for text generation tasks, predicting the next word in a sequence.", correct: true },
+                        { text: "It is bidirectional and excellent for understanding the context of a word (like BERT).", correct: false },
+                        { text: "It always requires an input and output of the same length.", correct: false },
+                        { text: "It is primarily used for image classification.", correct: false }
+                    ],
+                    explanation: "Decoder-only models are auto-regressive and process text in one direction (usually left to right). This makes them naturally suited for generating continuous text, as in chatbots, summaries, and creative writing."
+                }
+            },
+            // 72
+            {
+                pt: {
+                    question: "No SAP AI Core, qual é a relação entre um 'Scenario' e um 'Resource Group'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Um Scenario pertence a exatamente um Resource Group.", correct: true },
+                        { text: "Um Resource Group pertence a um Scenario.", correct: false },
+                        { text: "Eles são independentes e não se relacionam.", correct: false },
+                        { text: "Eles são a mesma coisa.", correct: false }
+                    ],
+                    explanation: "O Resource Group é um contêiner de nível superior para isolamento. Todos os artefatos de IA, incluindo Scenarios, Configurations, Executions e Deployments, são criados dentro do escopo de um Resource Group específico."
+                },
+                en: {
+                    question: "In SAP AI Core, what is the relationship between a 'Scenario' and a 'Resource Group'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A Scenario belongs to exactly one Resource Group.", correct: true },
+                        { text: "A Resource Group belongs to a Scenario.", correct: false },
+                        { text: "They are independent and not related.", correct: false },
+                        { text: "They are the same thing.", correct: false }
+                    ],
+                    explanation: "The Resource Group is a top-level container for isolation. All AI artifacts, including Scenarios, Configurations, Executions, and Deployments, are created within the scope of a specific Resource Group."
+                }
+            },
+            // 73
+            {
+                pt: {
+                    question: "Qual o principal risco de um prompt mal formulado em uma aplicação de IA Generativa?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Receber uma resposta irrelevante, incorreta ou até mesmo prejudicial.", correct: true },
+                        { text: "Causar uma falha de segurança no servidor do LLM.", correct: false },
+                        { text: "Corromper o modelo de linguagem base.", correct: false },
+                        { text: "Aumentar o custo da chamada à API em 10x.", correct: false }
+                    ],
+                    explanation: "A formulação do prompt é a principal interface de controle sobre o comportamento do LLM. Um prompt ambíguo ou que carece de contexto e restrições pode facilmente levar o modelo a gerar saídas indesejadas (o famoso 'garbage in, garbage out')."
+                },
+                en: {
+                    question: "What is the main risk of a poorly formulated prompt in a Generative AI application?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Receiving an irrelevant, incorrect, or even harmful response.", correct: true },
+                        { text: "Causing a security breach on the LLM server.", correct: false },
+                        { text: "Corrupting the base language model.", correct: false },
+                        { text: "Increasing the cost of the API call by 10x.", correct: false }
+                    ],
+                    explanation: "The prompt formulation is the main control interface over the LLM's behavior. An ambiguous prompt or one that lacks context and constraints can easily lead the model to generate undesirable outputs (the famous 'garbage in, garbage out')."
+                }
+            },
+            // 74
+            {
+                pt: {
+                    question: "Qual dos seguintes serviços da SAP BTP é usado para gerenciar chaves de API e credenciais de forma segura para conectar-se a serviços como o AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Credential Store", correct: true },
+                        { text: "SAP Identity Authentication Service", correct: false },
+                        { text: "SAP Object Store", correct: false },
+                        { text: "SAP Alert Notification service", correct: false }
+                    ],
+                    explanation: "O SAP Credential Store é o serviço na BTP projetado para armazenar e gerenciar de forma segura credenciais como senhas, chaves de API e tokens, que podem então ser consumidos por aplicações e outros serviços."
+                },
+                en: {
+                    question: "Which of the following SAP BTP services is used to securely manage API keys and credentials for connecting to services like AI Core?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP Credential Store", correct: true },
+                        { text: "SAP Identity Authentication Service", correct: false },
+                        { text: "SAP Object Store", correct: false },
+                        { text: "SAP Alert Notification service", correct: false }
+                    ],
+                    explanation: "The SAP Credential Store is the service on BTP designed to securely store and manage credentials such as passwords, API keys, and tokens, which can then be consumed by applications and other services."
+                }
+            },
+            // 75
+            {
+                pt: {
+                    question: "O que o termo 'multimodal' significa no contexto de modelos de IA?",
+                    correctCount: 1,
+                    options: [
+                        { text: "A capacidade do modelo de processar e entender diferentes tipos de dados, como texto, imagens e áudio.", correct: true },
+                        { text: "A capacidade do modelo de ser implantado em múltiplos provedores de nuvem.", correct: false },
+                        { text: "A capacidade do modelo de gerar múltiplas respostas para um único prompt.", correct: false },
+                        { text: "A capacidade do modelo de falar vários idiomas.", correct: false }
+                    ],
+                    explanation: "Modelos multimodais, como o GPT-4o, podem aceitar entradas que combinam diferentes modalidades (modos) de dados. Por exemplo, você pode enviar uma imagem e fazer uma pergunta sobre ela em texto."
+                },
+                en: {
+                    question: "What does the term 'multimodal' mean in the context of AI models?",
+                    correctCount: 1,
+                    options: [
+                        { text: "The model's ability to process and understand different types of data, such as text, images, and audio.", correct: true },
+                        { text: "The model's ability to be deployed on multiple cloud providers.", correct: false },
+                        { text: "The model's ability to generate multiple responses to a single prompt.", correct: false },
+                        { text: "The model's ability to speak multiple languages.", correct: false }
+                    ],
+                    explanation: "Multimodal models, like GPT-4o, can accept inputs that combine different modalities (modes) of data. For example, you can send an image and ask a question about it in text."
+                }
+            },
+            // 76
+            {
+                pt: {
+                    question: "Qual das seguintes é uma boa prática para engenharia de prompt?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Iterar e refinar o prompt com base nos resultados observados.", correct: true },
+                        { text: "Criar o prompt mais longo e detalhado possível desde o início.", correct: false },
+                        { text: "Nunca fornecer exemplos, pois isso confunde o modelo.", correct: false },
+                        { text: "Sempre usar temperatura zero para obter os melhores resultados.", correct: false }
+                    ],
+                    explanation: "Prompt engineering é um processo iterativo. Raramente o primeiro prompt é o melhor. A prática recomendada é começar de forma simples, testar, analisar a saída e refinar gradualmente o prompt (adicionando mais contexto, restrições ou exemplos) até que ele produza consistentemente o resultado desejado."
+                },
+                en: {
+                    question: "Which of the following is a good practice for prompt engineering?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Iterate and refine the prompt based on observed results.", correct: true },
+                        { text: "Create the longest and most detailed prompt possible from the beginning.", correct: false },
+                        { text: "Never provide examples, as this confuses the model.", correct: false },
+                        { text: "Always use zero temperature to get the best results.", correct: false }
+                    ],
+                    explanation: "Prompt engineering is an iterative process. The first prompt is rarely the best. The recommended practice is to start simple, test, analyze the output, and gradually refine the prompt (by adding more context, constraints, or examples) until it consistently produces the desired result."
+                }
+            },
+            // 77
+            {
+                pt: {
+                    question: "Como a SAP garante que o uso de IA em seus produtos seja ético?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Através de um código de ética de IA com princípios orientadores e um comitê de ética para revisão.", correct: true },
+                        { text: "Usando apenas modelos de IA de código aberto.", correct: false },
+                        { text: "Permitindo que os clientes auditem o código-fonte de todos os modelos.", correct: false },
+                        { text: "Evitando o uso de dados de clientes para treinar modelos.", correct: false }
+                    ],
+                    explanation: "A SAP possui uma política de ética em IA bem definida, baseada em princípios como transparência, justiça e confiabilidade. Um comitê de ética em IA supervisiona e orienta o desenvolvimento de produtos para garantir que eles se alinhem a esses princípios."
+                },
+                en: {
+                    question: "How does SAP ensure that the use of AI in its products is ethical?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Through an AI code of ethics with guiding principles and an ethics committee for review.", correct: true },
+                        { text: "By using only open-source AI models.", correct: false },
+                        { text: "By allowing customers to audit the source code of all models.", correct: false },
+                        { text: "By avoiding the use of customer data to train models.", correct: false }
+                    ],
+                    explanation: "SAP has a well-defined AI ethics policy based on principles such as transparency, fairness, and reliability. An AI ethics committee oversees and guides product development to ensure they align with these principles."
+                }
+            },
+            // 78
+            {
+                pt: {
+                    question: "No Generative AI Hub, qual o propósito do 'Playground'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Permitir que desenvolvedores e engenheiros de prompt experimentem interativamente com diferentes LLMs e prompts.", correct: true },
+                        { text: "Um ambiente de sandbox para testar o deploy de aplicações.", correct: false },
+                        { text: "Um local para treinar novos modelos de linguagem.", correct: false },
+                        { text: "Uma galeria de aplicações de IA prontas para uso.", correct: false }
+                    ],
+                    explanation: "O Playground é a principal ferramenta interativa do Hub. Ele fornece uma interface onde os usuários podem selecionar um LLM, escrever um prompt, ajustar parâmetros como temperatura e ver a resposta em tempo real, facilitando o ciclo rápido de experimentação e refino de prompts."
+                },
+                en: {
+                    question: "In the Generative AI Hub, what is the purpose of the 'Playground'?",
+                    correctCount: 1,
+                    options: [
+                        { text: "To allow developers and prompt engineers to interactively experiment with different LLMs and prompts.", correct: true },
+                        { text: "A sandbox environment for testing application deployments.", correct: false },
+                        { text: "A place to train new language models.", correct: false },
+                        { text: "A gallery of ready-to-use AI applications.", correct: false }
+                    ],
+                    explanation: "The Playground is the Hub's main interactive tool. It provides an interface where users can select an LLM, write a prompt, adjust parameters like temperature, and see the response in real-time, facilitating the rapid cycle of experimentation and prompt refinement."
+                }
+            },
+            // 79
+            {
+                pt: {
+                    question: "Qual a relação entre SAP AI Core e Kubernetes?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP AI Core é executado sobre uma infraestrutura Kubernetes para orquestrar os contêineres.", correct: true },
+                        { text: "Kubernetes é um framework de ML concorrente ao TensorFlow, usado no AI Core.", correct: false },
+                        { text: "SAP AI Core substituiu o Kubernetes.", correct: false },
+                        { text: "Eles não têm relação.", correct: false }
+                    ],
+                    explanation: "O SAP AI Core abstrai a complexidade da infraestrutura subjacente. Ele usa Kubernetes (um orquestrador de contêineres padrão da indústria) nos bastidores para gerenciar o escalonamento, a programação e a execução dos contêineres Docker que contêm o código de IA."
+                },
+                en: {
+                    question: "What is the relationship between SAP AI Core and Kubernetes?",
+                    correctCount: 1,
+                    options: [
+                        { text: "SAP AI Core runs on a Kubernetes infrastructure to orchestrate containers.", correct: true },
+                        { text: "Kubernetes is an ML framework that competes with TensorFlow, used in AI Core.", correct: false },
+                        { text: "SAP AI Core has replaced Kubernetes.", correct: false },
+                        { text: "They are unrelated.", correct: false }
+                    ],
+                    explanation: "SAP AI Core abstracts the complexity of the underlying infrastructure. It uses Kubernetes (an industry-standard container orchestrator) behind the scenes to manage the scaling, scheduling, and execution of the Docker containers that hold the AI code."
+                }
+            },
+            // 80
+            {
+                pt: {
+                    question: "Se um LLM gera uma resposta que inclui viés de gênero, qual princípio da IA Responsável foi violado?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Justiça (Fairness)", correct: true },
+                        { text: "Transparência (Transparency)", correct: false },
+                        { text: "Confiabilidade (Reliability)", correct: false },
+                        { text: "Privacidade (Privacy)", correct: false }
+                    ],
+                    explanation: "O princípio da Justiça (ou Equidade) trata de garantir que os sistemas de IA não perpetuem ou amplifiquem vieses sociais injustos. Gerar respostas que associam papéis ou características a um gênero específico é um exemplo clássico de violação desse princípio."
+                },
+                en: {
+                    question: "If an LLM generates a response that includes gender bias, which Responsible AI principle has been violated?",
+                    correctCount: 1,
+                    options: [
+                        { text: "Fairness", correct: true },
+                        { text: "Transparency", correct: false },
+                        { text: "Reliability", correct: false },
+                        { text: "Privacy", correct: false }
+                    ],
+                    explanation: "The principle of Fairness deals with ensuring that AI systems do not perpetuate or amplify unfair social biases. Generating responses that associate roles or characteristics with a specific gender is a classic example of violating this principle."
+                }
+            }
+        ];
+
+
+        // Elementos da UI
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const reviewContainer = document.getElementById('review-container');
+        
+        const startBtn = document.getElementById('start-quiz-btn');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const timerEl = document.getElementById('timer');
+
+        const resultTitleEl = document.getElementById('result-title');
+        const resultSummaryEl = document.getElementById('result-summary');
+        const scoreBar = document.getElementById('score-bar');
+        const reviewBtn = document.getElementById('review-answers-btn');
+        const restartBtn = document.getElementById('restart-quiz-btn');
+        
+        const langPtBtn = document.getElementById('lang-pt');
+        const langEnBtn = document.getElementById('lang-en');
+        const quizHeaderSelectEl = document.getElementById('quiz-header-select');
+
+        let quizQuestions = [];
+        let userAnswers = [];
+        let currentQuestionIndex = 0;
+        let timerInterval;
+        let currentLanguage = 'pt';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            
+            langPtBtn.classList.toggle('active', lang === 'pt');
+            langEnBtn.classList.toggle('active', lang === 'en');
+            
+            document.getElementById('main-title').textContent = uiText[lang].mainTitle;
+            document.getElementById('main-subtitle').textContent = uiText[lang].mainSubtitle;
+            document.getElementById('main-desc').innerHTML = uiText[lang].mainDesc;
+            startBtn.textContent = uiText[lang].startBtn;
+            
+            document.getElementById('quiz-header-question').textContent = uiText[lang].quizHeaderQuestion;
+            document.getElementById('quiz-header-of').textContent = uiText[lang].quizHeaderOf;
+            document.getElementById('quiz-header-time').textContent = uiText[lang].quizHeaderTime;
+            prevBtn.textContent = uiText[lang].prevBtn;
+            nextBtn.textContent = uiText[lang].nextBtn;
+            finishBtn.textContent = uiText[lang].finishBtn;
+            
+            reviewBtn.textContent = uiText[lang].reviewBtn;
+            restartBtn.textContent = uiText[lang].restartBtn;
+        }
+
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+
+            const shuffled = [...allQuestions];
+            shuffleArray(shuffled);
+            quizQuestions = shuffled.slice(0, 60);
+            userAnswers = new Array(quizQuestions.length).fill(null);
+            
+            quizQuestions.forEach(q => {
+                if (q.pt && q.pt.options) shuffleArray(q.pt.options);
+                if (q.en && q.en.options) shuffleArray(q.en.options);
+            });
+
+            startScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            reviewContainer.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            let timeLeft = 120 * 60; // 120 minutos em segundos
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) {
+                    finishQuiz();
+                }
+            }, 1000);
+            
+            displayQuestion(currentQuestionIndex);
+        }
+        
+        function displayQuestion(index) {
+            const questionData = quizQuestions[index][currentLanguage];
+            questionNumberEl.textContent = index + 1;
+            questionTextEl.innerHTML = questionData.question;
+            quizHeaderSelectEl.textContent = uiText[currentLanguage].quizHeaderSelect(questionData.correctCount);
+            optionsContainer.innerHTML = '';
+
+            questionData.options.forEach((option, optionIndex) => {
+                const optionId = `q${index}_o${optionIndex}`;
+                const isChecked = userAnswers[index] && userAnswers[index].includes(option.text);
+
+                const optionElement = document.createElement('div');
+                optionElement.innerHTML = `
+                    <label for="${optionId}" class="quiz-option block w-full p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" id="${optionId}" name="option" class="hidden" ${isChecked ? 'checked' : ''}>
+                        <div class="flex items-center">
+                            <span class="flex-shrink-0 w-6 h-6 border-2 border-gray-400 rounded-md mr-4 flex items-center justify-center transition-colors">
+                                <svg class="w-4 h-4 text-white fill-current hidden" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+                            </span>
+                            <span class="text-base text-gray-700">${option.text}</span>
+                        </div>
+                    </label>
+                `;
+                optionsContainer.appendChild(optionElement);
+                
+                const label = optionElement.querySelector('label');
+                label.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleOptionSelection(e.currentTarget);
+                });
+            });
+            updateVisualSelection();
+            updateNavButtons();
+            updateOptionStates();
+        }
+
+        function handleOptionSelection(label) {
+            const checkbox = label.querySelector('input');
+            const selectedCount = optionsContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+            const questionData = quizQuestions[currentQuestionIndex][currentLanguage];
+            const maxSelections = questionData.correctCount;
+
+            if (!checkbox.checked && selectedCount >= maxSelections) {
+                return;
+            }
+
+            checkbox.checked = !checkbox.checked;
+            
+            saveAnswer();
+            updateVisualSelection();
+            updateOptionStates();
+            updateNavButtons();
+        }
+
+        function updateVisualSelection() {
+            const allLabels = optionsContainer.querySelectorAll('label');
+            allLabels.forEach(label => {
+                const checkbox = label.querySelector('input');
+                 if (checkbox.checked) {
+                    label.classList.add('selected');
+                    label.querySelector('.border-gray-400').classList.add('bg-blue-600', 'border-blue-600');
+                    label.querySelector('svg').classList.remove('hidden');
+                } else {
+                    label.classList.remove('selected');
+                    label.querySelector('.border-gray-400').classList.remove('bg-blue-600', 'border-blue-600');
+                    label.querySelector('svg').classList.add('hidden');
+                }
+            });
+        }
+
+        function updateOptionStates() {
+            const selectedCount = optionsContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+            const questionData = quizQuestions[currentQuestionIndex][currentLanguage];
+            const maxSelections = questionData.correctCount;
+            const allLabels = optionsContainer.querySelectorAll('label');
+
+            if (selectedCount >= maxSelections) {
+                allLabels.forEach(label => {
+                    const checkbox = label.querySelector('input');
+                    if (!checkbox.checked) {
+                        label.classList.add('disabled');
+                    }
+                });
+            } else {
+                 allLabels.forEach(label => {
+                    label.classList.remove('disabled');
+                });
+            }
+        }
+        
+        function saveAnswer() {
+            const selectedOptions = [];
+            const checkboxes = optionsContainer.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach((checkbox) => {
+                const label = checkbox.closest('label');
+                const text = label.querySelector('span.text-gray-700').textContent;
+                selectedOptions.push(text);
+            });
+            userAnswers[currentQuestionIndex] = selectedOptions.length > 0 ? selectedOptions : null;
+        }
+
+        function updateNavButtons() {
+            // Previous button logic
+            prevBtn.disabled = currentQuestionIndex === 0;
+            prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+            
+            // Next/Finish button logic
+            const questionData = quizQuestions[currentQuestionIndex][currentLanguage];
+            const requiredAnswers = questionData.correctCount;
+            const selectedAnswers = userAnswers[currentQuestionIndex] ? userAnswers[currentQuestionIndex].length : 0;
+            const canProceed = requiredAnswers === selectedAnswers;
+            
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                nextBtn.classList.add('hidden');
+                finishBtn.classList.remove('hidden');
+                finishBtn.disabled = !canProceed;
+                finishBtn.classList.toggle('opacity-50', !canProceed);
+            } else {
+                nextBtn.classList.remove('hidden');
+                finishBtn.classList.add('hidden');
+                nextBtn.disabled = !canProceed;
+                nextBtn.classList.toggle('opacity-50', !canProceed);
+            }
+        }
+
+        function changeQuestion(direction) {
+            currentQuestionIndex += direction;
+            if (currentQuestionIndex >= 0 && currentQuestionIndex < quizQuestions.length) {
+                displayQuestion(currentQuestionIndex);
+            }
+        }
+        
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            calculateAndShowResults();
+        }
+
+        function calculateAndShowResults() {
+            let correctCount = 0;
+            quizQuestions.forEach((question, index) => {
+                const correctOptions = question[currentLanguage].options.filter(o => o.correct).map(o => o.text).sort();
+                const userSelection = (userAnswers[index] || []).sort();
+                
+                const isCorrect = correctOptions.length === userSelection.length && correctOptions.every((opt, i) => opt === userSelection[i]);
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+            });
+
+            const score = (correctCount / quizQuestions.length) * 100;
+            const passed = score >= 65;
+            
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            const lang = currentLanguage;
+            resultTitleEl.textContent = passed ? uiText[lang].passTitle : uiText[lang].failTitle;
+            resultTitleEl.className = `text-3xl font-bold mb-4 ${passed ? 'text-green-600' : 'text-red-600'}`;
+            resultSummaryEl.textContent = uiText[lang].resultSummary(correctCount, quizQuestions.length, score);
+            scoreBar.style.width = `${score}%`;
+            scoreBar.className = `h-4 rounded-full ${passed ? 'bg-green-500' : 'bg-red-500'}`;
+            
+            prepareReview();
+        }
+        
+        function prepareReview() {
+            reviewContainer.innerHTML = '';
+            const lang = currentLanguage;
+            quizQuestions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'bg-white p-6 rounded-lg shadow-sm border';
+                const questionData = question[lang];
+
+                const correctOptions = questionData.options.filter(o => o.correct).map(o => o.text).sort();
+                const userSelection = (userAnswers[index] || []).sort();
+                const isQuestionCorrect = correctOptions.length === userSelection.length && correctOptions.every((opt, i) => opt === userSelection[i]);
+                
+                let optionsHtml = '<div class="space-y-3 mt-4">';
+                questionData.options.forEach(option => {
+                    const isCorrect = option.correct;
+                    const isSelected = userSelection.includes(option.text);
+                    let optionClass = 'text-gray-700';
+                    let icon = '';
+
+                    if (isCorrect) {
+                        optionClass = 'text-green-700 font-semibold';
+                        icon = '<span>✔️</span>';
+                    }
+                    if (isSelected && !isCorrect) {
+                        optionClass = 'text-red-700';
+                        icon = '<span>❌</span>';
+                    }
+                    
+                    optionsHtml += `<div class="${optionClass} flex items-start"><span class="mr-2">${icon}</span><p>${option.text}</p></div>`;
+                });
+                optionsHtml += '</div>';
+
+                const explanationHtml = `<div class="mt-4 pt-4 border-t border-gray-200"><h4 class="font-semibold text-sm text-gray-800">${uiText[lang].explanation}</h4><p class="text-sm text-gray-600">${questionData.explanation}</p></div>`;
+
+                questionDiv.innerHTML = `
+                    <p class="font-bold text-gray-800">${index + 1}. ${questionData.question}</p>
+                    <p class="text-sm font-semibold ${isQuestionCorrect ? 'text-green-600' : 'text-red-600'}">${isQuestionCorrect ? uiText[lang].reviewCorrect : uiText[lang].reviewIncorrect}</p>
+                    ${optionsHtml}
+                    ${explanationHtml}
+                `;
+                reviewContainer.appendChild(questionDiv);
+            });
+        }
+
+        // Event Listeners
+        langPtBtn.addEventListener('click', () => setLanguage('pt'));
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+        
+        prevBtn.addEventListener('click', () => changeQuestion(-1));
+        nextBtn.addEventListener('click', () => changeQuestion(1));
+        finishBtn.addEventListener('click', finishQuiz); // REMOVED confirm() call
+        
+        reviewBtn.addEventListener('click', () => {
+            const lang = currentLanguage;
+            reviewContainer.classList.toggle('hidden');
+            reviewBtn.textContent = reviewContainer.classList.contains('hidden') ? uiText[lang].reviewBtn : uiText[lang].hideReviewBtn;
+        });
+
+        // Initialize with default language
+        setLanguage('pt');
+
+    </script>
+</body>
+</html>
